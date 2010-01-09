@@ -3,7 +3,7 @@
  * Created : 14th March 2009
  * Version : 2.000
  *
- *   Copyright (c) 2009 Paul Marquess. All rights reserved.
+ *   Copyright (c) 2009-2010 Paul Marquess. All rights reserved.
  *   This program is free software; you can redistribute it and/or
  *   modify it under the same terms as Perl itself.
  *
@@ -81,8 +81,8 @@ typedef lzma_options_lzma * Compress__Raw__Lzma__Options;
 #define COMPRESS_CLASS    "Compress::Raw::Lzma::Encoder"
 #define UNCOMPRESS_CLASS  "Compress::Raw::Lzma::Decoder"
 
-#define ZMALLOC(to, typ) ((to = (typ *)safemalloc(sizeof(typ))), \
-                                Zero(to,1,typ))
+#define ZMALLOC(to, typ) (((to) = (typ *)safemalloc(sizeof(typ))), \
+                                Zero((to),1,typ))
 
 #define setDefaultOptions(options) \
     {	\
@@ -284,23 +284,11 @@ InitStream(void)
 InitStream()
 #endif
 {
-    di_stream *s = (di_stream *)safemalloc(sizeof(di_stream));
-    lzma_stream tmp = LZMA_STREAM_INIT;
+    di_stream *s ;
 
     ZMALLOC(s, di_stream) ;
 
-    s->stream = tmp;
-
-#if 0
-    s->lzma.filters_count = 0;
-    s->lzma.preset_number = LZMA_PRESET_DEFAULT;
-    s->lzma.auto_adjust = TRUE;
-    s->lzma.preset_default = TRUE;
-    s->lzma.preset_extreme = FALSE;
-    s->lzma.check = LZMA_CHECK_CRC64;
-#endif
-
-    //lzma_memory_usage(lzma_preset_lzma, TRUE);
+    /* lzma_memory_usage(lzma_preset_lzma, TRUE); */
 
     return s ;
     
@@ -613,9 +601,6 @@ lzma_alone_encoder(class, flags, bufsize, filters)
     deflateStream s = NULL;
 
     if ((s = InitStream() )) {
-        //lzma_options_lzma options;
-        //setDefaultOptions(&options);
-        //err = lzma_alone_encoder ( &(s->stream), &options );
         setupFilters(s, filters);
         err = lzma_alone_encoder ( &(s->stream), s->filters[0].options );
 

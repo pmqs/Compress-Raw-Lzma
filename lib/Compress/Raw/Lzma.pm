@@ -12,7 +12,7 @@ use Carp ;
 use bytes ;
 our ($VERSION, $XS_VERSION, @ISA, @EXPORT, $AUTOLOAD);
 
-$VERSION = '2.023';
+$VERSION = '2.024';
 $XS_VERSION = $VERSION; 
 $VERSION = eval $VERSION;
 
@@ -700,7 +700,7 @@ sub Compress::Raw::Lzma::RawDecoder::new
 
 sub Lzma::Filters::validateFilters
 {
-    use UNIVERSAL qw( isa ) ;
+    use UNIVERSAL ;
     use Scalar::Util qw(blessed );
 
     my $encoding = shift; # not decoding
@@ -712,7 +712,7 @@ sub Lzma::Filters::validateFilters
     # if only one, convert into an array reference
     if (blessed $_[0] )  {
         die "filter is not an $objType object" 
-            unless isa($_[0], $objType);
+            unless UNIVERSAL::isa($_[0], $objType);
 
             #$_[0] = [ $_[0] ] ;
         return [ $_[0] ] ;
@@ -738,9 +738,9 @@ sub Lzma::Filters::validateFilters
     {
         my $filt = $filters->[$i];
         die "filter is not an Lzma::Filter object" 
-            unless isa($filt, 'Lzma::Filter');
+            unless UNIVERSAL::isa($filt, 'Lzma::Filter');
         die "Lzma filter must be last" 
-            if isa($filt, 'Lzma::Filter::Lzma') && $i < $count -1 ;
+            if UNIVERSAL::isa($filt, 'Lzma::Filter::Lzma') && $i < $count -1 ;
 
         #die "xxx" unless lzma_filter_encoder_is_supported($filt->id());
     }
@@ -973,7 +973,8 @@ Compress::Raw::Lzma - Low-Level Interface to lzma compression library
     
     $status = $lz->code($input, $output);
 
-    my $version = Compress::Raw::Lzma::bzlibversion();
+    my $version = Compress::Raw::Lzma::lzma_version_number();
+    my $version = Compress::Raw::Lzma::lzma_version_string();
 
 =head1 DESCRIPTION
 
@@ -1015,7 +1016,15 @@ Below is a list of the valid options:
 
 =item B<< Preset => $preset >>
 
+Used to choose the compression preset.
+
 Valid values are 0-9 and C<LZMA_PRESET_DEFAULT>.
+
+0 is the fastest compression with the lowest memory usage and the lowest
+compression.
+
+9 is the slowest compession with the highest memory usage but with the best
+compression.
 
 Defaults to C<LZMA_PRESET_DEFAULT>.
 
@@ -1068,7 +1077,12 @@ Below is a list of the valid options:
 
 =item B<< Filter => $filter >>
 
-TODO - add something about filters.
+The C< $filter > option must be an object of type C<Lzma::Filter::Lzma1>.
+See L<Compress::Raw::Lzma/Lzma::Filter::Lzma> for a definition 
+of C<Lzma::Filter::Lzma1>.
+
+If this option is not present an C<Lzma::Filter::Lzma1> object with default
+values will be used.
 
 =item B<< AppendOutput => 0|1 >>
 
@@ -1103,8 +1117,19 @@ Below is a list of the valid options:
 =over 5
 
 =item B<< Filter => $filter >>
+=item B<< Filter => [$filter1, $filter2,...] >>
 
-TODO - add something about filters.
+This option is used to change the bahaviour of the StreamEncoder by
+applying between one and C<LZMA_FILTERS_MAX> filters to the data stream
+during compression. See L</Filters> for more details on the available
+filters.
+
+If this option is present it must either contain a single
+C<Lzma::Filter::Lzma> filter object or an array reference containing between 
+one and C<LZMA_FILTERS_MAX> filter objects.
+
+If this option is not present an C<Lzma::Filter::Lzma2> object with default
+values will be used.
 
 =item B<< Check => $check >>
 
@@ -1147,8 +1172,19 @@ Below is a list of the valid options:
 =over 5
 
 =item B<< Filter => $filter >>
+=item B<< Filter => [$filter1, $filter2,...] >>
 
-TODO - add something about filters.
+This option is used to change the bahaviour of the RawEncoder by
+applying between one and C<LZMA_FILTERS_MAX> filters to the data stream
+during compression. See L</Filters> for more details on the available
+filters.
+
+If this option is present it must either contain a single
+C<Lzma::Filter::Lzma> filter object or an array reference containing between 
+one and C<LZMA_FILTERS_MAX> filter objects.
+
+If this option is not present an C<Lzma::Filter::Lzma2> object with default
+values will be used.
 
 =item B<< AppendOutput => 0|1 >>
 
@@ -1381,10 +1417,175 @@ C<$output> will be truncated before the uncompressed data is written to it.
 
 =head1 Filters
 
-A number of the compression interfaces and the raw uncompression interface
-make use of filters.
-
 TODO - more here
+
+A number of the Lzma compression interfaces (namely
+C<Compress::Raw::Lzma::StreamEncoder> &
+C<Compress::Raw::Lzma::AloneEncoder>) and the raw lzma uncompression interface
+make use of filters. These filters are used to change the behaviour of
+compression (and raw uncompression).
+
+All Lzma Filters are sub-classed from the C<Lzma::Filter> base-class.
+
+=head2 Lzma::Filter::Lzma
+
+The C<Lzma::Filter::Lzma> class is used to... TODO - more here
+
+There are two subclasses of C<Lzma::Filter::Lzma>, namely
+C<Lzma::Filter::Lzma1> and C<Lzma::Filter::Lzma2>. 
+
+The former is typically used with C<Compress::Raw::Lzma::AloneEncoder>.
+The latter with C<Compress::Raw::Lzma::StreamEncoder>.
+
+When using Lzma filters an C<Lzma::Filter::Lzma> I<must> be included and it
+I<must> be the last filter in the chain. There can only be one
+C<Lzma::Filter::Lzma> filter in any filter chain.
+
+The C<Lzma::Filter::Lzma> construction takes the following options.
+
+=over 5
+
+=item DictSize => $value
+
+Dictionary size in bytes. This controls 
+how many bytes of the recently processed
+uncompressed data is kept in memory. The size of the dictionary must be at
+least C<LZMA_DICT_SIZE_MIN>.
+
+Defaults to C<LZMA_DICT_SIZE_DEFAULT>.
+
+=item Lc => $value
+
+Number of literal context bits.
+
+How many of the highest bits of the previous uncompressed
+eight-bit byte (also known as `literal') are taken into
+account when predicting the bits of the next literal.
+
+C<$value> must be a number between C<LZMA_LCLP_MIN> and
+C<LZMA_LCLP_MAX>.
+	 
+Note the sum of the C<Lc> and C<Lp> options cannot exceed 4.
+
+Defaults to C<LZMA_LC_DEFAULT>.
+
+=item Lp => $value
+
+Number of literal position bits.
+
+How many of the lowest bits of the current position (number
+of bytes from the beginning of the uncompressed data) in the
+uncompressed data is taken into account when predicting the
+bits of the next literal (a single eight-bit byte).
+
+Defaults to C<LZMA_LP_DEFAULT>.
+
+=item Pb => $value
+
+Number of position bits
+
+How many of the lowest bits of the current position in the
+uncompressed data is taken into account when estimating
+probabilities of matches. A match is a sequence of bytes for
+which a matching sequence is found from the dictionary and
+thus can be stored as distance-length pair.
+
+C<$value> must be a number between C<LZMA_PB_MIN> and
+C<LZMA_PB_MAX>.
+
+Defaults to C<LZMA_PB_DEFAULT>.
+
+=item Persistent => true|false
+
+Indicate if the options structure is persistent.
+
+Defaults to C<false>.
+
+=item Mode => $value
+
+The Compression Mode. Valid values are C<LZMA_MODE_FAST> and
+C<LZMA_MODE_NORMAL>.
+
+Defaults to C<LZMA_MODE_NORMAL>.
+
+=item Nice => $value
+
+Nice length of a match
+
+Defaults to 64.
+
+=item Mf => $value
+
+Defines which Match Finder to use. Valid values are C<LZMA_MF_HC3>
+C<LZMA_MF_HC4>, C<LZMA_MF_BT2> C<LZMA_MF_BT3> and C<LZMA_MF_BT4>.
+
+Defaults to C<LZMA_MF_BT4>.
+
+=item Depth => $value
+
+Maximum search depth in the match finder.
+
+Defaults to 0.
+
+=back
+
+=head2 Lzma::Filter::BCJ
+
+The sub-classes of C<Lzma::Filter::BCJ> are the
+Branch/Call/Jump conversion filters. These filters are used to rewrite
+executable binary code for a number of processor acchitectures. 
+None of these classes take any options.
+
+=over 5
+
+=item Lzma::Filter::X86
+
+Filter for x86 binaries.
+
+=item Lzma::Filter::PowerPC
+
+Filter for Big endian PowerPC binaries.
+
+=item Lzma::Filter::IA64
+
+Filter for IA64 (Itanium) binaries.
+
+=item Lzma::Filter::ARM
+
+Filter for ARM binaries.
+
+=item Lzma::Filter::ARMThumb
+
+Filter for ARMThumb binaries.
+
+=item Lzma::Filter::Sparc
+
+Filter for Sparc binaries.
+
+=back
+
+=head2 Lzma::Filter::Delta
+
+Usage is
+
+    Lzma::Filter::Delta [OPTS]
+
+=over 5
+
+=item Type => $type
+
+Defines the type of Delta caclulation. The only available type (and
+therefore the default) is
+C<LZMA_DELTA_TYPE_BYTE>,
+
+=item Distance => $value
+
+Defines the Delta Distance. C<$value> must be a number between
+C<LZMA_DELTA_DIST_MIN> and C<LZMA_DELTA_DIST_MAX>.
+
+Default is C<LZMA_DELTA_DIST_MIN>.
+
+=back
 
 =head1 Misc
 
@@ -1424,7 +1625,7 @@ See the Changes file.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2005-2009 Paul Marquess. All rights reserved.
+Copyright (c) 2005-2010 Paul Marquess. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

@@ -1,6 +1,18 @@
 CHANGES
 -------
 
+  2.024 7 January 2010
+
+      * Documentation updates.
+
+      * Silence the warning "UNIVERSAL->import is deprecated and will be
+        removed in a future perl" when running perl 5.11
+
+      * Fixed a problem with the code that generated the LZMA constants.
+        This issue was found in with the version of the lzma library that
+        comes with Ubuntu 9.10 
+        Pronlem reported by Graham Jenkins
+
   2.023 9 November 2009
 
       * First public beta

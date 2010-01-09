@@ -25,13 +25,13 @@ BEGIN
 
     my $count = 0 ;
     if ($] < 5.005) {
-        $count = 627 ;
+        $count = 103 ;
     }
     elsif ($] >= 5.006) {
         $count = 689 ;
     }
     else {
-        $count = 555 ;
+        $count = 131 ;
     }
 
     plan tests => $count + $extra;

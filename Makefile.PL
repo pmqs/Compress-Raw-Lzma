@@ -63,7 +63,7 @@ while (<DATA>)
     if (defined $type && $type =~ /enum/i)
 	  { push @names, { name => $name, macro => ["#if 1\n", "#endif\n"] } }   
     elsif (defined $type && $type =~ /string/i)
-	  { push @names, { name => $name, type => "PV", macro => ["#if 1\n", "#endif\n"] } }   
+	  { push @names, { name => $name, type => "PV", macro => ["#ifdef $name \n", "#endif\n"] } }   
     elsif (defined $type && $type =~ /int/i)
 	  { push @names, { name => $name, type => "IV", macro => ["#if 1\n", "#endif\n"] } }  	  
     else
