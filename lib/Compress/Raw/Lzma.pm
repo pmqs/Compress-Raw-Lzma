@@ -12,7 +12,7 @@ use Carp ;
 use bytes ;
 our ($VERSION, $XS_VERSION, @ISA, @EXPORT, $AUTOLOAD);
 
-$VERSION = '2.027';
+$VERSION = '2.028';
 $XS_VERSION = $VERSION; 
 $VERSION = eval $VERSION;
 
@@ -771,7 +771,6 @@ sub Lzma::Filter::Lzma::mk
             'Lc'    => [1, 1, Parse_unsigned(), LZMA_LC_DEFAULT()],
             'Lp'    => [1, 1, Parse_unsigned(), LZMA_LP_DEFAULT()],
             'Pb'    => [1, 1, Parse_unsigned(), LZMA_PB_DEFAULT()],
-            'Persistent' => [1, 1, Parse_boolean(), 0],
             'Mode'  => [1, 1, Parse_unsigned(), LZMA_MODE_NORMAL()],
             'Nice'  => [1, 1, Parse_unsigned(), 64],
             'Mf'    => [1, 1, Parse_unsigned(), LZMA_MF_BT4()],
@@ -822,7 +821,6 @@ sub Lzma::Filter::Lzma::mk
                             $Lc,
                             $Lp,
                             $Pb,
-                            $got->value('Persistent'),
                             $Mode,
                             $Nice,
                             $Mf,
@@ -1494,12 +1492,6 @@ C<$value> must be a number between C<LZMA_PB_MIN> and
 C<LZMA_PB_MAX>.
 
 Defaults to C<LZMA_PB_DEFAULT>.
-
-=item Persistent => true|false
-
-Indicate if the options structure is persistent.
-
-Defaults to C<false>.
 
 =item Mode => $value
 

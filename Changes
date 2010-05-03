@@ -1,6 +1,14 @@
 CHANGES
 -------
 
+  2.028 3 May 2010
+
+      * Remove 'Persistent' option from  Lzma::Filter::Lzma. 
+        The underlying lzma library doesn't support it anymore.
+        [RT #57080]
+
+      * Silenced a pile of compiler warnings.
+
   2.027 24 April 2010
 
       * No Changes

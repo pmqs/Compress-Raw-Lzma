@@ -93,7 +93,6 @@ typedef lzma_options_lzma * Compress__Raw__Lzma__Options;
 		(options)->lc               = LZMA_LC_DEFAULT;	\
 		(options)->lp               = LZMA_LP_DEFAULT;	\
 		(options)->pb               = LZMA_PB_DEFAULT;	\
-		(options)->persistent       = FALSE;	\
 		(options)->mode             = LZMA_MODE_NORMAL;	\
 		(options)->nice_len         = 64;	\
 		(options)->mf               = LZMA_MF_BT4;	\
@@ -252,14 +251,14 @@ DispStream(s, message)
         printf("           next_in   0x%p", s->stream.next_in);
         if (s->stream.next_in){
             printf(" =>");
-            DispHex(s->stream.next_in, 4);
+            DispHex((void*)s->stream.next_in, 4);
         }
         printf("\n");
 
         printf("           next_out  0x%p", s->stream.next_out);
         if (s->stream.next_out){
             printf(" =>");
-            DispHex(s->stream.next_out, 4);
+            DispHex((void*)s->stream.next_out, 4);
         }
         printf("\n");
 
@@ -370,6 +369,8 @@ char * string;
             case SVt_PVHV:
             case SVt_PVCV:
                 croak("%s: buffer parameter is not a SCALAR reference", string);
+            default:
+                break;
         }
         if (SvROK(sv))
             croak("%s: buffer parameter is a reference to a reference", string) ;
@@ -407,6 +408,8 @@ char * string ;
             case SVt_PVHV:
             case SVt_PVCV:
                 croak("%s: buffer parameter is not a SCALAR reference", string);
+            default:
+                break;
         }
         if (SvROK(sv))
             croak("%s: buffer parameter is a reference to a reference", string) ;
@@ -528,6 +531,7 @@ PROTOTYPES:	DISABLE
 INCLUDE: constants.xs
 
 BOOT:
+    int t = trace; t = t;
     if (lzma_version_number() != LZMA_VERSION)
     {
         croak("Version Mismatch - Built with version %d, library used is version %d\n", LZMA_VERSION, lzma_version_number());
@@ -647,7 +651,7 @@ lzma_raw_encoder(class, flags, bufsize, filters)
     if ((s = InitStream() )) {
         setupFilters(s, filters);
 
-        err = lzma_raw_encoder ( &(s->stream), &s->filters );
+        err = lzma_raw_encoder ( &(s->stream), (const lzma_filter*)&s->filters );
 
         if (err != LZMA_OK) {
             Safefree(s) ;
@@ -693,7 +697,7 @@ lzma_stream_encoder(class, flags, bufsize, filters, check=LZMA_CHECK_CRC32)
     if ((s = InitStream() )) {
         setupFilters(s, filters);
 
-        err = lzma_stream_encoder ( &(s->stream), &s->filters, check );
+        err = lzma_stream_encoder ( &(s->stream), (const lzma_filter*)&s->filters, check );
 
         if (err != LZMA_OK) {
             Safefree(s) ;
@@ -737,7 +741,7 @@ lzma_easy_encoder(class, flags, bufsize, preset=LZMA_PRESET_DEFAULT, check=LZMA_
     lzma_ret err = LZMA_OK;
     deflateStream s = NULL;
 
-    if (s = InitStream()) {
+    if ((s = InitStream())) {
         err = lzma_easy_encoder ( &(s->stream), preset, check);
 
         if (err != LZMA_OK) {
@@ -804,7 +808,7 @@ code (s, buf, output)
     if (DO_UTF8(buf) && !sv_utf8_downgrade(buf, 1))
          croak("Wide character in " COMPRESS_CLASS "::code input parameter");
 #endif         
-    s->stream.next_in = (char*)SvPVbyte_nolen(buf) ;
+    s->stream.next_in = (uint8_t*)SvPVbyte_nolen(buf) ;
     s->stream.avail_in = SvCUR(buf) ;
      
     //if (is_tainted)
@@ -821,7 +825,7 @@ code (s, buf, output)
         /* sv_setpvn(output, "", 0); */
     }
     cur_length =  SvCUR(output) ;
-    s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length;
+    s->stream.next_out = (uint8_t*) SvPVbyte_nolen(output) + cur_length;
     increment =  SvLEN(output) -  cur_length;
     s->stream.avail_out =  increment;
     while (s->stream.avail_in != 0) {
@@ -830,7 +834,7 @@ code (s, buf, output)
 	    /* out of space in the output buffer so make it bigger */
             Sv_Grow(output, SvLEN(output) + bufinc) ;
             cur_length += increment ;
-            s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length ;
+            s->stream.next_out = (uint8_t*) SvPVbyte_nolen(output) + cur_length ;
             increment = bufinc ;
             s->stream.avail_out = increment;
             bufinc *= 2 ;
@@ -893,7 +897,7 @@ flush(s, output, f=LZMA_FINISH)
         /* sv_setpvn(output, "", 0); */
     }
     cur_length =  SvCUR(output) ;
-    s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length;
+    s->stream.next_out = (uint8_t*) SvPVbyte_nolen(output) + cur_length;
     increment =  SvLEN(output) -  cur_length;
     s->stream.avail_out =  increment;
 
@@ -902,7 +906,7 @@ flush(s, output, f=LZMA_FINISH)
 	    /* consumed all the available output, so extend it */
             Sv_Grow(output, SvLEN(output) + bufinc) ;
             cur_length += increment ;
-            s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length ;
+            s->stream.next_out = (uint8_t*) SvPVbyte_nolen(output) + cur_length ;
             increment = bufinc ;
             s->stream.avail_out = increment;
             bufinc *= 2 ;
@@ -1008,7 +1012,6 @@ void
 lzma_raw_decoder(class, flags, bufsize, filters)
     const char* class
     int flags
-    int fl
     uLong bufsize
     AV* filters
   PPCODE:
@@ -1018,7 +1021,7 @@ lzma_raw_decoder(class, flags, bufsize, filters)
     if ((s = InitStream() )) {
         setupFilters(s, filters);
 
-        err = lzma_raw_decoder ( &(s->stream), &s->filters );
+        err = lzma_raw_decoder ( &(s->stream), (const lzma_filter*)&s->filters );
 
         if (err != LZMA_OK) {
             Safefree(s) ;
@@ -1087,7 +1090,7 @@ code (s, buf, output)
 #endif         
     
     /* initialise the input buffer */
-    s->stream.next_in = (char*)SvPVbyte_force(buf, stmp) ;
+    s->stream.next_in = (uint8_t*)SvPVbyte_force(buf, stmp) ;
     s->stream.avail_in = SvCUR(buf);
 	
     /* and retrieve the output buffer */
@@ -1120,7 +1123,7 @@ code (s, buf, output)
         */
         if (SvLEN(output) > cur_length + 1)
         {
-            s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length;
+            s->stream.next_out = (uint8_t*) SvPVbyte_nolen(output) + cur_length;
             increment = SvLEN(output) -  cur_length - 1;
             s->stream.avail_out = increment;
         }
@@ -1135,7 +1138,7 @@ code (s, buf, output)
 	    /* out of space in the output buffer so make it bigger */
             Sv_Grow(output, SvLEN(output) + bufinc + 1) ;
             cur_length += increment ;
-            s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length ;
+            s->stream.next_out = (uint8_t*) SvPVbyte_nolen(output) + cur_length ;
             increment = bufinc ;
             s->stream.avail_out = increment;
             bufinc *= 2 ;
@@ -1238,20 +1241,18 @@ DESTROY(s)
 MODULE = Lzma::Filter::Lzma PACKAGE = Lzma::Filter::Lzma
 
 Lzma::Filter::Lzma
-_mk(want_lzma2, dict_size, lc, lp, pb, persistent, mode, nice_len, mf, depth)
+_mk(want_lzma2, dict_size, lc, lp, pb, mode, nice_len, mf, depth)
     bool want_lzma2
     uint32_t dict_size
     uint32_t lc
     uint32_t lp
     uint32_t pb 
-    lzma_bool persistent
     lzma_mode mode
     uint32_t nice_len 
     lzma_match_finder mf 
     uint32_t depth
     CODE:
         lzma_options_lzma* p;
-        SV* sv;
         ZMALLOC(RETVAL, lzma_filter) ;
         RETVAL->id = want_lzma2 ? LZMA_FILTER_LZMA2 : LZMA_FILTER_LZMA1 ;
         ZMALLOC(RETVAL->options, lzma_options_lzma) ;
@@ -1261,7 +1262,6 @@ _mk(want_lzma2, dict_size, lc, lp, pb, persistent, mode, nice_len, mf, depth)
         p->lc = lc ;
         p->lp = lp ;
         p->pb = pb ;
-        p->persistent = persistent ;
         p->mode = mode ;
         p->nice_len = nice_len ;
         p->mf = mf ;

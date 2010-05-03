@@ -88,7 +88,6 @@ BEGIN
                 Lc         => 0,
                 Lp         => 3,
                 Pb         => LZMA_PB_MAX,
-                Persistent => 1,
                 Mode       => LZMA_MODE_FAST,
                 Nice       => 128,
                 Mf         => LZMA_MF_HC4,
