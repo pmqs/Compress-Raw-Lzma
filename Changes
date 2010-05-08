@@ -1,6 +1,12 @@
 CHANGES
 -------
 
+  2.029 8 May 2010
+
+      * Compress::Raw::Lzma::EasyEncoder with Preset => 9 needs a *lot* of
+        memory. This was triggering smoke failures on some systems.
+        Reworked that test harness to spot the memory failure.
+
   2.028 3 May 2010
 
       * Remove 'Persistent' option from  Lzma::Filter::Lzma. 

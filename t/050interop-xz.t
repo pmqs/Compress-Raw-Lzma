@@ -145,22 +145,29 @@ sub compressWith
     
     
     my ($x, $err) = $class->new(AppendOutput => 1, %opts) ;
-    isa_ok $x, $class;
-    isa_ok $x, "Compress::Raw::Lzma::Encoder";
-    cmp_ok $err, '==', LZMA_OK,"  status is LZMA_OK" 
-        or diag "Error is $err";
-     
-    my (%X, $Y, %Z, $X, $Z);
-    cmp_ok $x->code($contents, $X), '==', LZMA_OK, "  compressed ok" ;
-    
-    cmp_ok $x->flush($X), '==', LZMA_STREAM_END, "  flushed ok" ;
-     
-    my $lex = new LexFile my $file;
-    writeFile($file, $X);
-    
-    my $got = '';
-    ok readWithXz($file, $got, $xz_opts), "  readWithXz returns 0";
-    is $got, $contents, "  got content";
+
+    SKIP:
+    {
+        skip "Not Enough Memory", 7 if $err == LZMA_MEM_ERROR;
+
+        isa_ok $x, $class;
+        isa_ok $x, "Compress::Raw::Lzma::Encoder";
+
+        cmp_ok $err, '==', LZMA_OK,"  status is LZMA_OK" 
+            or diag "Error is $err";
+         
+        my (%X, $Y, %Z, $X, $Z);
+        cmp_ok $x->code($contents, $X), '==', LZMA_OK, "  compressed ok" ;
+        
+        cmp_ok $x->flush($X), '==', LZMA_STREAM_END, "  flushed ok" ;
+         
+        my $lex = new LexFile my $file;
+        writeFile($file, $X);
+        
+        my $got = '';
+        ok readWithXz($file, $got, $xz_opts), "  readWithXz returns 0";
+        is $got, $contents, "  got content";
+    }
 }
 
 sub uncompressWith
