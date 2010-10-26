@@ -1,6 +1,12 @@
 CHANGES
 -------
 
+  2.031 26 Oct 20100
+
+      * Changed to build with XZ 5.0.0
+        Dropped symbolic constants provided by subblock.h
+        [RT #62461]
+
   2.030 22 July 2010
 
       * No Changes

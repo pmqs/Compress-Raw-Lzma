@@ -505,9 +505,8 @@ static int
 constant_18 (pTHX_ const char *name, IV *iv_return) {
   /* When generated this function returned values for the list of names given
      here.  However, subsequent manual editing may have added or removed some.
-     LZMA_DICT_SIZE_MIN LZMA_OPTIONS_ERROR LZMA_SUBFILTER_RUN
-     LZMA_SUBFILTER_SET LZMA_TELL_NO_CHECK LZMA_VERSION_MAJOR
-     LZMA_VERSION_MINOR LZMA_VERSION_PATCH */
+     LZMA_DICT_SIZE_MIN LZMA_OPTIONS_ERROR LZMA_TELL_NO_CHECK
+     LZMA_VERSION_MAJOR LZMA_VERSION_MINOR LZMA_VERSION_PATCH */
   /* Offset 15 gives the best switch position.  */
   switch (name[15]) {
   case 'E':
@@ -564,26 +563,6 @@ constant_18 (pTHX_ const char *name, IV *iv_return) {
       return PERL_constant_NOTDEF;
 #endif
     }
-    if (memEQ(name, "LZMA_SUBFILTER_RUN", 18)) {
-    /*                              ^         */
-#if 1
-      *iv_return = LZMA_SUBFILTER_RUN;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    break;
-  case 'S':
-    if (memEQ(name, "LZMA_SUBFILTER_SET", 18)) {
-    /*                              ^         */
-#if 1
-      *iv_return = LZMA_SUBFILTER_SET;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
     break;
   case 'T':
     if (memEQ(name, "LZMA_VERSION_PATCH", 18)) {
@@ -606,8 +585,7 @@ constant_19 (pTHX_ const char *name, IV *iv_return, const char **pv_return) {
      here.  However, subsequent manual editing may have added or removed some.
      LZMA_CHECK_SIZE_MAX LZMA_DELTA_DIST_MAX LZMA_DELTA_DIST_MIN
      LZMA_FILTER_POWERPC LZMA_MEMLIMIT_ERROR LZMA_PRESET_DEFAULT
-     LZMA_PRESET_EXTREME LZMA_SUBFILTER_NONE LZMA_TELL_ANY_CHECK
-     LZMA_VERSION_STRING */
+     LZMA_PRESET_EXTREME LZMA_TELL_ANY_CHECK LZMA_VERSION_STRING */
   /* Offset 17 gives the best switch position.  */
   switch (name[17]) {
   case 'A':
@@ -675,18 +653,9 @@ constant_19 (pTHX_ const char *name, IV *iv_return, const char **pv_return) {
     }
     break;
   case 'N':
-    if (memEQ(name, "LZMA_SUBFILTER_NONE", 19)) {
-    /*                                ^        */
-#if 1
-      *iv_return = LZMA_SUBFILTER_NONE;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
     if (memEQ(name, "LZMA_VERSION_STRING", 19)) {
     /*                                ^        */
-#if 1
+#ifdef LZMA_VERSION_STRING 
       *pv_return = LZMA_VERSION_STRING;
       return PERL_constant_ISPV;
 #else
@@ -710,106 +679,6 @@ constant_19 (pTHX_ const char *name, IV *iv_return, const char **pv_return) {
     /*                                ^        */
 #ifdef LZMA_FILTER_POWERPC
       *iv_return = LZMA_FILTER_POWERPC;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    break;
-  }
-  return PERL_constant_NOTFOUND;
-}
-
-static int
-constant_20 (pTHX_ const char *name, IV *iv_return) {
-  /* When generated this function returned values for the list of names given
-     here.  However, subsequent manual editing may have added or removed some.
-     LZMA_DELTA_TYPE_BYTE LZMA_FILTER_ARMTHUMB LZMA_FILTER_SUBBLOCK */
-  /* Offset 13 gives the best switch position.  */
-  switch (name[13]) {
-  case 'P':
-    if (memEQ(name, "LZMA_DELTA_TYPE_BYTE", 20)) {
-    /*                            ^             */
-#if 1
-      *iv_return = LZMA_DELTA_TYPE_BYTE;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    break;
-  case 'R':
-    if (memEQ(name, "LZMA_FILTER_ARMTHUMB", 20)) {
-    /*                            ^             */
-#ifdef LZMA_FILTER_ARMTHUMB
-      *iv_return = LZMA_FILTER_ARMTHUMB;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    break;
-  case 'U':
-    if (memEQ(name, "LZMA_FILTER_SUBBLOCK", 20)) {
-    /*                            ^             */
-#ifdef LZMA_FILTER_SUBBLOCK
-      *iv_return = LZMA_FILTER_SUBBLOCK;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    break;
-  }
-  return PERL_constant_NOTFOUND;
-}
-
-static int
-constant_21 (pTHX_ const char *name, IV *iv_return) {
-  /* When generated this function returned values for the list of names given
-     here.  However, subsequent manual editing may have added or removed some.
-     LZMA_SUBBLOCK_RLE_MAX LZMA_SUBBLOCK_RLE_MIN LZMA_SUBBLOCK_RLE_OFF
-     LZMA_SUBFILTER_FINISH */
-  /* Offset 20 gives the best switch position.  */
-  switch (name[20]) {
-  case 'F':
-    if (memEQ(name, "LZMA_SUBBLOCK_RLE_OF", 20)) {
-    /*                                   F      */
-#ifdef LZMA_SUBBLOCK_RLE_OFF
-      *iv_return = LZMA_SUBBLOCK_RLE_OFF;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    break;
-  case 'H':
-    if (memEQ(name, "LZMA_SUBFILTER_FINIS", 20)) {
-    /*                                   H      */
-#if 1
-      *iv_return = LZMA_SUBFILTER_FINISH;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    break;
-  case 'N':
-    if (memEQ(name, "LZMA_SUBBLOCK_RLE_MI", 20)) {
-    /*                                   N      */
-#ifdef LZMA_SUBBLOCK_RLE_MIN
-      *iv_return = LZMA_SUBBLOCK_RLE_MIN;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    break;
-  case 'X':
-    if (memEQ(name, "LZMA_SUBBLOCK_RLE_MA", 20)) {
-    /*                                   X      */
-#ifdef LZMA_SUBBLOCK_RLE_MAX
-      *iv_return = LZMA_SUBBLOCK_RLE_MAX;
       return PERL_constant_ISIV;
 #else
       return PERL_constant_NOTDEF;
@@ -888,70 +757,6 @@ constant_22 (pTHX_ const char *name, IV *iv_return) {
 }
 
 static int
-constant_27 (pTHX_ const char *name, IV *iv_return) {
-  /* When generated this function returned values for the list of names given
-     here.  However, subsequent manual editing may have added or removed some.
-     LZMA_SUBBLOCK_ALIGNMENT_MAX LZMA_SUBBLOCK_ALIGNMENT_MIN
-     LZMA_SUBBLOCK_DATA_SIZE_MAX LZMA_SUBBLOCK_DATA_SIZE_MIN
-     LZMA_TELL_UNSUPPORTED_CHECK */
-  /* Offset 20 gives the best switch position.  */
-  switch (name[20]) {
-  case 'D':
-    if (memEQ(name, "LZMA_TELL_UNSUPPORTED_CHECK", 27)) {
-    /*                                   ^             */
-#ifdef LZMA_TELL_UNSUPPORTED_CHECK
-      *iv_return = LZMA_TELL_UNSUPPORTED_CHECK;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    break;
-  case 'E':
-    if (memEQ(name, "LZMA_SUBBLOCK_ALIGNMENT_MAX", 27)) {
-    /*                                   ^             */
-#ifdef LZMA_SUBBLOCK_ALIGNMENT_MAX
-      *iv_return = LZMA_SUBBLOCK_ALIGNMENT_MAX;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    if (memEQ(name, "LZMA_SUBBLOCK_ALIGNMENT_MIN", 27)) {
-    /*                                   ^             */
-#ifdef LZMA_SUBBLOCK_ALIGNMENT_MIN
-      *iv_return = LZMA_SUBBLOCK_ALIGNMENT_MIN;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    break;
-  case 'I':
-    if (memEQ(name, "LZMA_SUBBLOCK_DATA_SIZE_MAX", 27)) {
-    /*                                   ^             */
-#ifdef LZMA_SUBBLOCK_DATA_SIZE_MAX
-      *iv_return = LZMA_SUBBLOCK_DATA_SIZE_MAX;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    if (memEQ(name, "LZMA_SUBBLOCK_DATA_SIZE_MIN", 27)) {
-    /*                                   ^             */
-#ifdef LZMA_SUBBLOCK_DATA_SIZE_MIN
-      *iv_return = LZMA_SUBBLOCK_DATA_SIZE_MIN;
-      return PERL_constant_ISIV;
-#else
-      return PERL_constant_NOTDEF;
-#endif
-    }
-    break;
-  }
-  return PERL_constant_NOTFOUND;
-}
-
-static int
 constant (pTHX_ const char *name, STRLEN len, IV *iv_return, const char **pv_return) {
   /* Initially switch on the length of the name.  */
   /* When generated this function returned values for the list of names given
@@ -974,18 +779,13 @@ my @names = (qw(LZMA_BACKWARD_SIZE_MIN LZMA_BLOCK_HEADER_SIZE_MAX
 	       LZMA_DICT_SIZE_DEFAULT LZMA_DICT_SIZE_MIN LZMA_FILTERS_MAX
 	       LZMA_FILTER_ARM LZMA_FILTER_ARMTHUMB LZMA_FILTER_DELTA
 	       LZMA_FILTER_IA64 LZMA_FILTER_LZMA2 LZMA_FILTER_POWERPC
-	       LZMA_FILTER_SPARC LZMA_FILTER_SUBBLOCK LZMA_FILTER_X86
-	       LZMA_LCLP_MAX LZMA_LCLP_MIN LZMA_LC_DEFAULT LZMA_LP_DEFAULT
-	       LZMA_PB_DEFAULT LZMA_PB_MAX LZMA_PB_MIN LZMA_PRESET_DEFAULT
-	       LZMA_PRESET_EXTREME LZMA_PRESET_LEVEL_MASK
-	       LZMA_STREAM_HEADER_SIZE LZMA_SUBBLOCK_ALIGNMENT_DEFAULT
-	       LZMA_SUBBLOCK_ALIGNMENT_MAX LZMA_SUBBLOCK_ALIGNMENT_MIN
-	       LZMA_SUBBLOCK_DATA_SIZE_DEFAULT LZMA_SUBBLOCK_DATA_SIZE_MAX
-	       LZMA_SUBBLOCK_DATA_SIZE_MIN LZMA_SUBBLOCK_RLE_MAX
-	       LZMA_SUBBLOCK_RLE_MIN LZMA_SUBBLOCK_RLE_OFF LZMA_TELL_ANY_CHECK
-	       LZMA_TELL_NO_CHECK LZMA_TELL_UNSUPPORTED_CHECK LZMA_VERSION
-	       LZMA_VERSION_MAJOR LZMA_VERSION_MINOR LZMA_VERSION_PATCH
-	       LZMA_VERSION_STABILITY),
+	       LZMA_FILTER_SPARC LZMA_FILTER_X86 LZMA_LCLP_MAX LZMA_LCLP_MIN
+	       LZMA_LC_DEFAULT LZMA_LP_DEFAULT LZMA_PB_DEFAULT LZMA_PB_MAX
+	       LZMA_PB_MIN LZMA_PRESET_DEFAULT LZMA_PRESET_EXTREME
+	       LZMA_PRESET_LEVEL_MASK LZMA_STREAM_HEADER_SIZE
+	       LZMA_TELL_ANY_CHECK LZMA_TELL_NO_CHECK
+	       LZMA_TELL_UNSUPPORTED_CHECK LZMA_VERSION LZMA_VERSION_MAJOR
+	       LZMA_VERSION_MINOR LZMA_VERSION_PATCH LZMA_VERSION_STABILITY),
             {name=>"LZMA_BUF_ERROR", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
             {name=>"LZMA_CHECK_CRC32", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
             {name=>"LZMA_CHECK_CRC64", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
@@ -1012,14 +812,10 @@ my @names = (qw(LZMA_BACKWARD_SIZE_MIN LZMA_BLOCK_HEADER_SIZE_MAX
             {name=>"LZMA_PROG_ERROR", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
             {name=>"LZMA_RUN", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
             {name=>"LZMA_STREAM_END", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
-            {name=>"LZMA_SUBFILTER_FINISH", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
-            {name=>"LZMA_SUBFILTER_NONE", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
-            {name=>"LZMA_SUBFILTER_RUN", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
-            {name=>"LZMA_SUBFILTER_SET", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
             {name=>"LZMA_SYNC_FLUSH", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
             {name=>"LZMA_UNSUPPORTED_CHECK", type=>"IV", macro=>["#if 1\n", "#endif\n"]},
-            {name=>"LZMA_VERSION_STABILITY_STRING", type=>"PV", macro=>["#if 1\n", "#endif\n"]},
-            {name=>"LZMA_VERSION_STRING", type=>"PV", macro=>["#if 1\n", "#endif\n"]});
+            {name=>"LZMA_VERSION_STABILITY_STRING", type=>"PV", macro=>["#ifdef LZMA_VERSION_STABILITY_STRING \n", "#endif\n"]},
+            {name=>"LZMA_VERSION_STRING", type=>"PV", macro=>["#ifdef LZMA_VERSION_STRING \n", "#endif\n"]});
 
 print constant_types(), "\n"; # macro defs
 foreach (C_constant ("Lzma", 'constant', 'IV', $types, undef, 3, @names) ) {
@@ -1086,10 +882,33 @@ __END__
     return constant_19 (aTHX_ name, iv_return, pv_return);
     break;
   case 20:
-    return constant_20 (aTHX_ name, iv_return);
-    break;
-  case 21:
-    return constant_21 (aTHX_ name, iv_return);
+    /* Names all of length 20.  */
+    /* LZMA_DELTA_TYPE_BYTE LZMA_FILTER_ARMTHUMB */
+    /* Offset 5 gives the best switch position.  */
+    switch (name[5]) {
+    case 'D':
+      if (memEQ(name, "LZMA_DELTA_TYPE_BYTE", 20)) {
+      /*                    ^                     */
+#if 1
+        *iv_return = LZMA_DELTA_TYPE_BYTE;
+        return PERL_constant_ISIV;
+#else
+        return PERL_constant_NOTDEF;
+#endif
+      }
+      break;
+    case 'F':
+      if (memEQ(name, "LZMA_FILTER_ARMTHUMB", 20)) {
+      /*                    ^                     */
+#ifdef LZMA_FILTER_ARMTHUMB
+        *iv_return = LZMA_FILTER_ARMTHUMB;
+        return PERL_constant_ISIV;
+#else
+        return PERL_constant_NOTDEF;
+#endif
+      }
+      break;
+    }
     break;
   case 22:
     return constant_22 (aTHX_ name, iv_return);
@@ -1134,45 +953,23 @@ __END__
     }
     break;
   case 27:
-    return constant_27 (aTHX_ name, iv_return);
-    break;
-  case 29:
-    if (memEQ(name, "LZMA_VERSION_STABILITY_STRING", 29)) {
-#if 1
-      *pv_return = LZMA_VERSION_STABILITY_STRING;
-      return PERL_constant_ISPV;
+    if (memEQ(name, "LZMA_TELL_UNSUPPORTED_CHECK", 27)) {
+#ifdef LZMA_TELL_UNSUPPORTED_CHECK
+      *iv_return = LZMA_TELL_UNSUPPORTED_CHECK;
+      return PERL_constant_ISIV;
 #else
       return PERL_constant_NOTDEF;
 #endif
     }
     break;
-  case 31:
-    /* Names all of length 31.  */
-    /* LZMA_SUBBLOCK_ALIGNMENT_DEFAULT LZMA_SUBBLOCK_DATA_SIZE_DEFAULT */
-    /* Offset 14 gives the best switch position.  */
-    switch (name[14]) {
-    case 'A':
-      if (memEQ(name, "LZMA_SUBBLOCK_ALIGNMENT_DEFAULT", 31)) {
-      /*                             ^                       */
-#ifdef LZMA_SUBBLOCK_ALIGNMENT_DEFAULT
-        *iv_return = LZMA_SUBBLOCK_ALIGNMENT_DEFAULT;
-        return PERL_constant_ISIV;
+  case 29:
+    if (memEQ(name, "LZMA_VERSION_STABILITY_STRING", 29)) {
+#ifdef LZMA_VERSION_STABILITY_STRING 
+      *pv_return = LZMA_VERSION_STABILITY_STRING;
+      return PERL_constant_ISPV;
 #else
-        return PERL_constant_NOTDEF;
+      return PERL_constant_NOTDEF;
 #endif
-      }
-      break;
-    case 'D':
-      if (memEQ(name, "LZMA_SUBBLOCK_DATA_SIZE_DEFAULT", 31)) {
-      /*                             ^                       */
-#ifdef LZMA_SUBBLOCK_DATA_SIZE_DEFAULT
-        *iv_return = LZMA_SUBBLOCK_DATA_SIZE_DEFAULT;
-        return PERL_constant_ISIV;
-#else
-        return PERL_constant_NOTDEF;
-#endif
-      }
-      break;
     }
     break;
   }
