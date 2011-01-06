@@ -246,6 +246,12 @@ LZMA_FILTERS_MAX
 
 # index.h
 ##########
+# Below supported from 5.0.0 onwards 
+#LZMA_INDEX_ITER_ANY enum
+#LZMA_INDEX_ITER_STREAM enum
+#LZMA_INDEX_ITER_BLOCK enum
+#LZMA_INDEX_ITER_NONEMPTY_BLOCK enum
+
 
 # index_hash.h
 ##############
