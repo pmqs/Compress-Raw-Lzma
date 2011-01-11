@@ -842,15 +842,20 @@ code (s, buf, output)
 
         RETVAL = lzma_code(&(s->stream), LZMA_RUN);
 
-        /* printf("code returned %d [%s]\n", RETVAL, * GetErrorString(RETVAL)); */
-        if (RETVAL == LZMA_BUF_ERROR) {
+        if (RETVAL == LZMA_STREAM_END) 
+            break;
+        if (RETVAL != LZMA_OK) 
+            break;
+
+        /* if (RETVAL == LZMA_BUF_ERROR) { */
+        
             if (s->stream.avail_out == 0)
                 continue ;
             if (s->stream.avail_in == 0) {
                 RETVAL = LZMA_OK ;
                 break ;
             }
-        }
+        
 
         if (RETVAL != LZMA_OK) 
             break;
@@ -960,7 +965,7 @@ uncompressedBytes(s)
 MODULE = Compress::Raw::Lzma PACKAGE = Compress::Raw::Lzma
 
 void
-lzma_auto_decoder(class, flags, bufsize, memlimit=128*1024*1024, fl=0)
+lzma_auto_decoder(class, flags, bufsize, memlimit=UINT64_MAX, fl=0)
     const char* class
     int flags
     int fl
