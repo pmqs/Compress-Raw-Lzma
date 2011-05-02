@@ -12,7 +12,7 @@ use Carp ;
 use bytes ;
 our ($VERSION, $XS_VERSION, @ISA, @EXPORT, $AUTOLOAD);
 
-$VERSION = '2.033';
+$VERSION = '2.034';
 $XS_VERSION = $VERSION; 
 $VERSION = eval $VERSION;
 
@@ -1256,7 +1256,7 @@ Below is a list of the valid options:
 
 The number of bytes to use when uncompressing.
 
-Default is 128Meg.
+Default is unlimited.
 
 =item B<-Bufsize>
 
@@ -1334,7 +1334,7 @@ Below is a list of the valid options:
 
 The number of bytes to use when uncompressing.
 
-Default is 128Meg.
+Default is unlimited.
 
 =item B<-Bufsize>
 
