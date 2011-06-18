@@ -1,6 +1,18 @@
 CHANGES
 -------
 
+  2.036 18 June 2011
+
+      * A number of changes to facilitate adding LZMA support to
+        IO::Compress::Zip & IO::Uncompress::Unzip
+
+          * Added preset filters Lzma::Filter::Lzma1::Preset & 
+            Lzma::Filter::Lzma2::Preset
+
+          * Added forZip option to Compress::Raw::Lzma::Encoder
+
+          * Added properties option to Compress::Raw::Lzma::RawDecoder
+
   2.035 6 May 2011
 
       * No Changes

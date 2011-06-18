@@ -127,7 +127,7 @@ BEGIN
     $extra = 1
         if eval { require Test::NoWarnings ;  import Test::NoWarnings; 1 };
 
-    plan tests => 1007 + $extra ;
+    plan tests => 1006 + $extra ;
 
     use_ok('Compress::Raw::Lzma') ;
 
@@ -204,12 +204,12 @@ sub uncompressWith
     compressWith('Compress::Raw::Lzma::AloneEncoder', '-F auto',
             Filter => Lzma::Filter::Lzma1 );
 
-    # Error
-    eval {
-        compressWith('Compress::Raw::Lzma::AloneEncoder', '-F auto',
-            Filter => Lzma::Filter::X86);
-    };
-    like $@,  mkErr("filter is not an Lzma::Filter::Lzma1 object"), " catch error";
+#    # Error
+#    eval {
+#        compressWith('Compress::Raw::Lzma::AloneEncoder', '-F auto',
+#            Filter => Lzma::Filter::X86);
+#    };
+#    like $@,  mkErr("filter is not an Lzma::Filter::Lzma1 object"), " catch error";
 
     compressWith('Compress::Raw::Lzma::AloneEncoder', '-F auto',
             Filter => Lzma::Filter::Lzma1(

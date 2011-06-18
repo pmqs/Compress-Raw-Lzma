@@ -12,7 +12,7 @@ use Carp ;
 use bytes ;
 our ($VERSION, $XS_VERSION, @ISA, @EXPORT, $AUTOLOAD);
 
-$VERSION = '2.035';
+$VERSION = '2.036';
 $XS_VERSION = $VERSION; 
 $VERSION = eval $VERSION;
 
@@ -503,6 +503,7 @@ sub Compress::Raw::Lzma::RawEncoder::new
     my $pkg = shift ;
     my ($got) = ParseParameters(0,
             {
+                'ForZip'        => [1, 1, Parse_boolean,  0],
                 'AppendOutput'  => [1, 1, Parse_boolean,  0],
                 'Bufsize'       => [1, 1, Parse_unsigned, 16 * 1024],
                 'Filter'        => [1, 1, Parse_any, [] ],
@@ -513,11 +514,14 @@ sub Compress::Raw::Lzma::RawEncoder::new
     my $flags = 0 ;
     $flags |= FLAG_APPEND if $got->value('AppendOutput') ;
 
-    my $filters = Lzma::Filters::validateFilters(1, 1, $got->value('Filter')) ;
+    my $forZip = $got->value('ForZip');
+
+    my $filters = Lzma::Filters::validateFilters(1, ! $forZip, $got->value('Filter')) ;
 
     lzma_raw_encoder($pkg, $flags, 
                         $got->value('Bufsize'),
-                        $filters);
+                        $filters, 
+                        $forZip);
 
 }
 
@@ -616,6 +620,7 @@ sub Compress::Raw::Lzma::RawDecoder::new
                         'ConsumeInput'  => [1, 1, Parse_boolean,  1],
                         'Bufsize'       => [1, 1, Parse_unsigned, 16 * 1024],
                         'Filter'        => [1, 1, Parse_any, [] ],
+                        'Properties'    => [1, 1, Parse_any,  undef],
             }, @_) ;
 
 
@@ -624,12 +629,14 @@ sub Compress::Raw::Lzma::RawDecoder::new
     $flags |= FLAG_CONSUME_INPUT if $got->value('ConsumeInput') ;
     $flags |= FLAG_LIMIT_OUTPUT if $got->value('LimitOutput') ;
 
-    my $filters = Lzma::Filters::validateFilters(0, 1, $got->value('Filter')) ;
+    my $filters = Lzma::Filters::validateFilters(0, ! defined $got->value('Properties'), 
+                            $got->value('Filter')) ;
 
     lzma_raw_decoder($pkg, 
                         $flags, 
                         $got->value('Bufsize'), 
-                        $filters);
+                        $filters,
+                        $got->value('Properties'));
 }
 
 # LZMA1/2
@@ -707,11 +714,11 @@ sub Lzma::Filters::validateFilters
     my $lzma2 = shift; 
 
     my $objType = $lzma2 ? "Lzma::Filter::Lzma2"
-                         : "Lzma::Filter::Lzma1" ;
+                         : "Lzma::Filter::Lzma" ;
 
     # if only one, convert into an array reference
     if (blessed $_[0] )  {
-        die "filter is not an $objType object" 
+        die "filter object $_[0] is not an $objType object" 
             unless UNIVERSAL::isa($_[0], $objType);
 
             #$_[0] = [ $_[0] ] ;
@@ -833,6 +840,20 @@ sub Lzma::Filter::Lzma::mk
     $obj;    
 }
 
+sub Lzma::Filter::Lzma::mkPreset
+{
+    my $type = shift;
+
+    my $preset = shift;
+    my $pkg = (caller(1))[3] ;
+
+    my $obj = Lzma::Filter::Lzma::_mkPreset($type, $preset);    
+
+    bless $obj, $pkg
+        if defined $obj;
+
+    $obj;    
+}
 
 @Lzma::Filter::Lzma1::ISA = qw(Lzma::Filter::Lzma);
 sub Lzma::Filter::Lzma1
@@ -840,11 +861,23 @@ sub Lzma::Filter::Lzma1
     Lzma::Filter::Lzma::mk(0, @_);    
 }
 
+@Lzma::Filter::Lzma1::Preset::ISA = qw(Lzma::Filter::Lzma);
+sub Lzma::Filter::Lzma1::Preset
+{
+    Lzma::Filter::Lzma::mkPreset(0, @_);    
+}
+
 
 @Lzma::Filter::Lzma2::ISA = qw(Lzma::Filter::Lzma);
 sub Lzma::Filter::Lzma2
 {
     Lzma::Filter::Lzma::mk(1, @_);    
+}
+
+@Lzma::Filter::Lzma2::Preset::ISA = qw(Lzma::Filter::Lzma);
+sub Lzma::Filter::Lzma2::Preset
+{
+    Lzma::Filter::Lzma::mkPreset(1, @_);    
 }
 
 @Lzma::Filter::BCJ::ISA = qw(Lzma::Filter);
@@ -1198,6 +1231,13 @@ method. If the buffer has to be reallocated to increase the size, it will
 grow in increments of C<Bufsize>.
 
 Defaults to 16k.
+
+=item B<< ForZip => 1/0 >>
+
+This boolean option is used to enable prefixing the compressed data stream
+with an encoded copy of the filter properties.
+
+Defaults to 0.
 
 =back
 

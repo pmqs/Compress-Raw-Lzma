@@ -50,6 +50,7 @@ typedef struct di_stream {
 #define FLAG_LIMIT_OUTPUT       16
 
     //bool     is_tainted;
+    bool        forZip;
     lzma_stream stream ; 
 
     lzma_filter filters[LZMA_FILTERS_MAX + 1];
@@ -223,7 +224,7 @@ DispHex(ptr, length)
 
 static void
 #ifdef CAN_PROTOTYPE
-DispStream(di_stream * s, char * message)
+DispStream(di_stream * s, SV* sv, char * message)
 #else
 DispStream(s, message)
     di_stream * s;
@@ -242,6 +243,11 @@ DispStream(s, message)
     if (message)
         printf("- %s \n", message) ;
     printf("\n") ;
+
+    if (sv) {
+        sv_dump(sv);
+        printf("\n") ;
+    }
 
     if (!s)  {
         printf("    stream pointer is NULL\n");
@@ -308,29 +314,40 @@ PostInitStream(s, flags, bufsize)
     s->flags    = flags ;
 }
 
-void
-setupFilters(di_stream* s, AV* filters)
+bool
+setupFilters(di_stream* s, AV* filters, const char* properties)
 {
-
-    AV*   f = filters;
-    int	count = av_len(f)  ;
     int i = 0;
 
-    for (i = 0; i <= count; ++i)
-    {
-        SV * fptr = (SV*) * av_fetch(f, i, FALSE) ;
-        IV tmp = SvIV((SV*)SvRV(fptr));
-        lzma_filter* filter = INT2PTR(lzma_filter*, tmp);
+    if (properties) {
+        s->filters[i].id = LZMA_FILTER_LZMA1;
+        if (lzma_properties_decode(&s->filters[i], NULL, properties, 5) !=
+LZMA_OK)
+            return FALSE;
+        ++i;
 
-        /* Keep a reference to the filter so it doesn't get destroyed */
-        s->sv_filters[i] = newSVsv(fptr) ;
+    }
+    else {
+        AV*   f = filters;
+        int	count = av_len(f)  ;
 
-        s->filters[i].id = filter->id;
-        s->filters[i].options = filter->options;
+        for (i = 0; i <= count; ++i)
+        {
+            SV * fptr = (SV*) * av_fetch(f, i, FALSE) ;
+            IV tmp = SvIV((SV*)SvRV(fptr));
+            lzma_filter* filter = INT2PTR(lzma_filter*, tmp);
+
+            /* Keep a reference to the filter so it doesn't get destroyed */
+            s->sv_filters[i] = newSVsv(fptr) ;
+
+            s->filters[i].id = filter->id;
+            s->filters[i].options = filter->options;
+        }
     }
 
     /* Terminate the filter list */
     s->filters[i].id = LZMA_VLI_UNKNOWN ;
+    return TRUE;
 }
 
 void
@@ -521,6 +538,41 @@ set_compression_settings(lzma_data * lzma)
 }
 #endif
 
+lzma_ret
+#ifdef CAN_PROTOTYPE
+addZipProperties(di_stream* s, SV* output)
+#else
+addZipProperties(s, output)
+di_stream* s;
+SV* output ;
+#endif
+{
+    uint32_t size;
+    int cur_length =  SvCUR(output) ;
+    int status = lzma_properties_size(&size, &s->filters[0]);
+
+    if (status != LZMA_OK)
+        return status;
+
+    uint8_t *props ;
+
+    Sv_Grow(output, SvLEN(output) + size + 4) ;
+    props = (uint8_t*) SvPVbyte_nolen(output) + cur_length;
+
+    *props = LZMA_VERSION_MAJOR ; ++ props;
+    *props = LZMA_VERSION_MINOR ; ++ props;
+    *props = size ; ++ props;
+    *props = 0 ; ++ props;
+
+    status = lzma_properties_encode(&s->filters[0], props);
+    SvCUR_set(output, cur_length + size + 4);
+
+    s->forZip = FALSE ;
+
+    return status ;
+}
+
+
 #include "constants.h"
 
 MODULE = Compress::Raw::Lzma PACKAGE = Compress::Raw::Lzma   
@@ -605,7 +657,7 @@ lzma_alone_encoder(class, flags, bufsize, filters)
     deflateStream s = NULL;
 
     if ((s = InitStream() )) {
-        setupFilters(s, filters);
+        setupFilters(s, filters, NULL);
         err = lzma_alone_encoder ( &(s->stream), s->filters[0].options );
 
         if (err != LZMA_OK) {
@@ -638,19 +690,21 @@ lzma_alone_encoder(class, flags, bufsize, filters)
   }
   
 void
-lzma_raw_encoder(class, flags, bufsize, filters)
+lzma_raw_encoder(class, flags, bufsize, filters, forZip)
     const char * class
     int flags
     uLong bufsize
     AV* filters
+    bool forZip
   PPCODE:
   {
     lzma_ret err = LZMA_OK;
     deflateStream s = NULL;
 
     if ((s = InitStream() )) {
-        setupFilters(s, filters);
+        setupFilters(s, filters, NULL);
 
+        s->forZip = forZip ;
         err = lzma_raw_encoder ( &(s->stream), (const lzma_filter*)&s->filters );
 
         if (err != LZMA_OK) {
@@ -695,7 +749,7 @@ lzma_stream_encoder(class, flags, bufsize, filters, check=LZMA_CHECK_CRC32)
     deflateStream s = NULL;
 
     if ((s = InitStream() )) {
-        setupFilters(s, filters);
+        setupFilters(s, filters, NULL);
 
         err = lzma_stream_encoder ( &(s->stream), (const lzma_filter*)&s->filters, check );
 
@@ -824,6 +878,10 @@ code (s, buf, output)
         SvCUR_set(output, 0);
         /* sv_setpvn(output, "", 0); */
     }
+
+    if (s->forZip) 
+        addZipProperties(s, output) ;
+
     cur_length =  SvCUR(output) ;
     s->stream.next_out = (uint8_t*) SvPVbyte_nolen(output) + cur_length;
     increment =  SvLEN(output) -  cur_length;
@@ -901,6 +959,10 @@ flush(s, output, f=LZMA_FINISH)
         SvCUR_set(output, 0);
         /* sv_setpvn(output, "", 0); */
     }
+
+    if (s->forZip) 
+        addZipProperties(s, output) ;
+
     cur_length =  SvCUR(output) ;
     s->stream.next_out = (uint8_t*) SvPVbyte_nolen(output) + cur_length;
     increment =  SvLEN(output) -  cur_length;
@@ -1014,17 +1076,22 @@ lzma_auto_decoder(class, flags, bufsize, memlimit=UINT64_MAX, fl=0)
   }
  
 void
-lzma_raw_decoder(class, flags, bufsize, filters)
+lzma_raw_decoder(class, flags, bufsize, filters, properties)
     const char* class
     int flags
     uLong bufsize
     AV* filters
+    const char* properties
   PPCODE:
   {
     int err = LZMA_OK ;
     inflateStream s = NULL;
     if ((s = InitStream() )) {
-        setupFilters(s, filters);
+
+        if (! setupFilters(s, filters, properties)) {
+            Safefree(s) ;
+            s = NULL ;
+        }
 
         err = lzma_raw_decoder ( &(s->stream), (const lzma_filter*)&s->filters );
 
@@ -1151,8 +1218,6 @@ code (s, buf, output)
 
         RETVAL = lzma_code(&(s->stream), LZMA_RUN);
 
-        /* printf("code returned %d \n", RETVAL);
-        DispStream(s, "here"); */
         if (s->flags & FLAG_LIMIT_OUTPUT) {
             if (RETVAL == LZMA_BUF_ERROR && s->stream.avail_in == 0) {
                 RETVAL = LZMA_OK ;
@@ -1271,6 +1336,20 @@ _mk(want_lzma2, dict_size, lc, lp, pb, mode, nice_len, mf, depth)
         p->nice_len = nice_len ;
         p->mf = mf ;
         p->depth = depth ;
+    OUTPUT:
+        RETVAL
+
+Lzma::Filter::Lzma
+_mkPreset(want_lzma2, preset)
+    bool want_lzma2
+    uint32_t preset
+    CODE:
+        lzma_options_lzma* p;
+        ZMALLOC(RETVAL, lzma_filter) ;
+        RETVAL->id = want_lzma2 ? LZMA_FILTER_LZMA2 : LZMA_FILTER_LZMA1 ;
+        ZMALLOC(RETVAL->options, lzma_options_lzma) ;
+        p = (lzma_options_lzma*)RETVAL->options;
+        lzma_lzma_preset(p, preset);
     OUTPUT:
         RETVAL
 
