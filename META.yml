@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Compress-Raw-Lzma
-version:            2.037
+version:            2.039
 abstract:           Low-Level Interface to lzma compression library
 author:
     - Paul Marquess <pmqs@cpan.org>

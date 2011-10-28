@@ -12,7 +12,7 @@ use Carp ;
 use bytes ;
 our ($VERSION, $XS_VERSION, @ISA, @EXPORT, $AUTOLOAD);
 
-$VERSION = '2.037';
+$VERSION = '2.039';
 $XS_VERSION = $VERSION; 
 $VERSION = eval $VERSION;
 
@@ -404,6 +404,19 @@ sub Compress::Raw::Lzma::Parameters::value
     }
 
     return $self->{Got}{lc $name}[OFF_FIXED] ;
+}
+
+
+sub Compress::Raw::Lzma::Encoder::STORABLE_freeze
+{
+    my $type = ref shift;
+    croak "Cannot freeze $type object\n";
+}
+
+sub Compress::Raw::Lzma::Encoder::STORABLE_thaw
+{
+    my $type = ref shift;
+    croak "Cannot thaw $type object\n";
 }
 
 
