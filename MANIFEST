@@ -3,7 +3,6 @@ config.in
 fallback/constants.h
 fallback/constants.xs
 lib/Compress/Raw/Lzma.pm
-lib/Compress/Raw/Lzma/FAQ.pod
 Lzma.xs
 Makefile.PL
 MANIFEST
