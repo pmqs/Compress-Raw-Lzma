@@ -1,9 +1,9 @@
 
                             Compress-Raw-Lzma
 
-                         Version 2.051
+                         Version 2.052
 
-                            22nd February 2012
+                              29th April 2012
 
        Copyright (c) 2009-2012 Paul Marquess. All rights reserved.
           This program is free software; you can redistribute it
@@ -23,7 +23,7 @@ installed on your system:
 
     * A C compiler
 
-    * Perl 5.004 or better. 
+    * Perl 5.006 or better. 
 
     * A copy of liblzma
       liblzma is part of the XZ Utils which is available at
@@ -161,7 +161,7 @@ To help me help you, I need all of the following information:
         If you haven't installed Compress-Raw-Lzma then search Compress::Raw::Lzma.pm
         for a line like this:
 
-          $VERSION = "2.051" ;
+          $VERSION = "2.052" ;
 
      c. The version of lzma you have used.
         If you have successfully installed Compress-Raw-Lzma, this one-liner

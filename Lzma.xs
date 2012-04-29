@@ -147,7 +147,7 @@ typedef lzma_options_lzma * Compress__Raw__Lzma__Options;
 
 
 //static const char * const my_l_errmsg[] = {
-static const char my_l_errmsg[][32] = {
+static const char my_l_errmsg[][34] = {
     "OK",		                            /* LZMA_OK                  = 0 */
     "End of stream",		                /* LZMA_STREAM_END          = 1 */
     "No integrity check",                   /* LZMA_NO_CHECK       	    = 2 */
@@ -321,8 +321,8 @@ setupFilters(di_stream* s, AV* filters, const char* properties)
 
     if (properties) {
         s->filters[i].id = LZMA_FILTER_LZMA1;
-        if (lzma_properties_decode(&s->filters[i], NULL, properties, 5) !=
-LZMA_OK)
+        if (lzma_properties_decode(&s->filters[i], NULL, 
+                (const uint8_t*)properties, 5) != LZMA_OK)
             return FALSE;
         ++i;
 
@@ -549,7 +549,7 @@ SV* output ;
 {
     uint32_t size;
     int cur_length =  SvCUR(output) ;
-    int status = lzma_properties_size(&size, &s->filters[0]);
+    lzma_ret status = lzma_properties_size(&size, &s->filters[0]);
 
     if (status != LZMA_OK)
         return status;
@@ -559,8 +559,8 @@ SV* output ;
     Sv_Grow(output, SvLEN(output) + size + 4) ;
     props = (uint8_t*) SvPVbyte_nolen(output) + cur_length;
 
-    *props = LZMA_VERSION_MAJOR ; ++ props;
-    *props = LZMA_VERSION_MINOR ; ++ props;
+    *props = (uint8_t)LZMA_VERSION_MAJOR ; ++ props;
+    *props = (uint8_t)LZMA_VERSION_MINOR ; ++ props;
     *props = size ; ++ props;
     *props = 0 ; ++ props;
 
@@ -646,8 +646,8 @@ lzma_easy_decoder_memusage(preset)
     uint32_t preset
 
 void
-lzma_alone_encoder(class, flags, bufsize, filters)
-    const char * class
+lzma_alone_encoder(Class, flags, bufsize, filters)
+    const char * Class
     int flags
     uLong bufsize
     AV* filters
@@ -658,7 +658,7 @@ lzma_alone_encoder(class, flags, bufsize, filters)
 
     if ((s = InitStream() )) {
         setupFilters(s, filters, NULL);
-        err = lzma_alone_encoder ( &(s->stream), s->filters[0].options );
+        err = lzma_alone_encoder ( &(s->stream), (const lzma_options_lzma*)s->filters[0].options );
 
         if (err != LZMA_OK) {
             Safefree(s) ;
@@ -675,7 +675,7 @@ lzma_alone_encoder(class, flags, bufsize, filters)
     }
 
     {
-        SV* obj = sv_setref_pv(sv_newmortal(), class, (void*)s);
+        SV* obj = sv_setref_pv(sv_newmortal(), Class, (void*)s);
         //if (is_tainted)
             //setTainted(obj);
         XPUSHs(obj);
@@ -690,8 +690,8 @@ lzma_alone_encoder(class, flags, bufsize, filters)
   }
   
 void
-lzma_raw_encoder(class, flags, bufsize, filters, forZip)
-    const char * class
+lzma_raw_encoder(Class, flags, bufsize, filters, forZip)
+    const char * Class
     int flags
     uLong bufsize
     AV* filters
@@ -722,7 +722,7 @@ lzma_raw_encoder(class, flags, bufsize, filters, forZip)
     }
 
     {
-        SV* obj = sv_setref_pv(sv_newmortal(), class, (void*)s);
+        SV* obj = sv_setref_pv(sv_newmortal(), Class, (void*)s);
         //if (is_tainted)
             //setTainted(obj);
         XPUSHs(obj);
@@ -737,12 +737,12 @@ lzma_raw_encoder(class, flags, bufsize, filters, forZip)
   }
   
 void
-lzma_stream_encoder(class, flags, bufsize, filters, check=LZMA_CHECK_CRC32)
-    const char * class
+lzma_stream_encoder(Class, flags, bufsize, filters, check=LZMA_CHECK_CRC32)
+    const char * Class
     int flags
     uLong bufsize
     AV* filters
-    int check
+    lzma_check check
   PPCODE:
   {
     lzma_ret err = LZMA_OK;
@@ -768,7 +768,7 @@ lzma_stream_encoder(class, flags, bufsize, filters, check=LZMA_CHECK_CRC32)
     }
 
     {
-        SV* obj = sv_setref_pv(sv_newmortal(), class, (void*)s);
+        SV* obj = sv_setref_pv(sv_newmortal(), Class, (void*)s);
         //if (is_tainted)
             //setTainted(obj);
         XPUSHs(obj);
@@ -784,11 +784,11 @@ lzma_stream_encoder(class, flags, bufsize, filters, check=LZMA_CHECK_CRC32)
   
 
 void
-lzma_easy_encoder(class, flags, bufsize, preset=LZMA_PRESET_DEFAULT, check=LZMA_CHECK_CRC32)
-    const char * class
+lzma_easy_encoder(Class, flags, bufsize, preset=LZMA_PRESET_DEFAULT, check=LZMA_CHECK_CRC32)
+    const char * Class
     int flags
     int preset
-    int check
+    lzma_check check
     uLong bufsize
   PPCODE:
   {
@@ -813,7 +813,7 @@ lzma_easy_encoder(class, flags, bufsize, preset=LZMA_PRESET_DEFAULT, check=LZMA_
     }
 
     {
-        SV* obj = sv_setref_pv(sv_newmortal(), class, (void*)s);
+        SV* obj = sv_setref_pv(sv_newmortal(), Class, (void*)s);
         //if (is_tainted)
             //setTainted(obj);
         XPUSHs(obj);
@@ -855,7 +855,7 @@ code (s, buf, output)
     bufinc = s->bufsize;
 
     /* If the input buffer is a reference, dereference it */
-    buf = deRef(buf, "code") ;
+    buf = deRef(buf, (char*)"code") ;
  
     /* initialise the input buffer */
 #ifdef UTF8_AVAILABLE    
@@ -868,7 +868,7 @@ code (s, buf, output)
     //if (is_tainted)
         //setTainted(output);
     /* and retrieve the output buffer */
-    output = deRef_l(output, "code") ;
+    output = deRef_l(output, (char*)"code") ;
 #ifdef UTF8_AVAILABLE    
     if (DO_UTF8(output) && !sv_utf8_downgrade(output, 1))
          croak("Wide character in " COMPRESS_CLASS "::code output parameter");
@@ -940,7 +940,7 @@ flush(s, output, f=LZMA_FINISH)
     uInt	increment = NO_INIT
     uInt    bufinc = NO_INIT
     lzma_ret	RETVAL = LZMA_OK;
-    int     f
+    lzma_action     f
     //bool is_tainted = getTaint2;
   CODE:
     //if (is_tainted)
@@ -950,7 +950,7 @@ flush(s, output, f=LZMA_FINISH)
     s->stream.avail_in = 0; /* should be zero already anyway */
   
     /* retrieve the output buffer */
-    output = deRef_l(output, "flush") ;
+    output = deRef_l(output, (char*)"flush") ;
 #ifdef UTF8_AVAILABLE    
     if (DO_UTF8(output) && !sv_utf8_downgrade(output, 1))
          croak("Wide character in " COMPRESS_CLASS "::flush input parameter");
@@ -1027,8 +1027,8 @@ uncompressedBytes(s)
 MODULE = Compress::Raw::Lzma PACKAGE = Compress::Raw::Lzma
 
 void
-lzma_auto_decoder(class, flags, bufsize, memlimit=UINT64_MAX, fl=0)
-    const char* class
+lzma_auto_decoder(Class, flags, bufsize, memlimit=UINT64_MAX, fl=0)
+    const char* Class
     int flags
     int fl
     uint64_t memlimit
@@ -1061,7 +1061,7 @@ lzma_auto_decoder(class, flags, bufsize, memlimit=UINT64_MAX, fl=0)
         err = LZMA_MEM_ERROR ;
 
     {
-        SV* obj = sv_setref_pv(sv_newmortal(), class, (void*)s);
+        SV* obj = sv_setref_pv(sv_newmortal(), Class, (void*)s);
         //if (is_tainted)
             //setTainted(obj);
         XPUSHs(obj);
@@ -1076,8 +1076,8 @@ lzma_auto_decoder(class, flags, bufsize, memlimit=UINT64_MAX, fl=0)
   }
  
 void
-lzma_raw_decoder(class, flags, bufsize, filters, properties)
-    const char* class
+lzma_raw_decoder(Class, flags, bufsize, filters, properties)
+    const char* Class
     int flags
     uLong bufsize
     AV* filters
@@ -1108,7 +1108,7 @@ lzma_raw_decoder(class, flags, bufsize, filters, properties)
         err = LZMA_MEM_ERROR ;
 
     {
-        SV* obj = sv_setref_pv(sv_newmortal(), class, (void*)s);
+        SV* obj = sv_setref_pv(sv_newmortal(), Class, (void*)s);
         //if (is_tainted)
             //setTainted(obj);
         XPUSHs(obj);
@@ -1152,7 +1152,7 @@ code (s, buf, output)
         //setTainted(output);
     bufinc = s->bufsize;
     /* If the buffer is a reference, dereference it */
-    buf = deRef(buf, "inflate") ;
+    buf = deRef(buf, (char*)"inflate") ;
 
     if (s->flags & FLAG_CONSUME_INPUT && SvREADONLY(buf))
         croak(UNCOMPRESS_CLASS "::code input parameter cannot be read-only when ConsumeInput is specified");
@@ -1166,7 +1166,7 @@ code (s, buf, output)
     s->stream.avail_in = SvCUR(buf);
 	
     /* and retrieve the output buffer */
-    output = deRef_l(output, "inflate") ;
+    output = deRef_l(output, (char*)"inflate") ;
 #ifdef UTF8_AVAILABLE    
     if (DO_UTF8(output))
          out_utf8 = TRUE ;

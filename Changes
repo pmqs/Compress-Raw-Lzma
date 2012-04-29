@@ -1,6 +1,10 @@
 CHANGES
 -------
 
+  2.052 29 April 2012
+
+      * Fixed to allow building with C++
+
   2.049 17 February 2012
 
       * README wasn't included in the distribution.
