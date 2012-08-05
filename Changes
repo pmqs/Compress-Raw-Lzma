@@ -1,6 +1,10 @@
 CHANGES
 -------
 
+  2.055 5 August 2012
+
+      * Fix misuse of magic in API
+
   2.052 29 April 2012
 
       * Fixed to allow building with C++
