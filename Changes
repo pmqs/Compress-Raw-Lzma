@@ -1,6 +1,11 @@
 CHANGES
 -------
 
+  2.057 10 November 2012
+
+      * update to ppport.h that includes SvPV_nomg_nolen
+      * added PERL_NO_GET_CONTEXT
+
   2.055 5 August 2012
 
       * Fix misuse of magic in API

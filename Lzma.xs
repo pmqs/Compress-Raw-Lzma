@@ -10,6 +10,7 @@
  */
 
 
+#define PERL_NO_GET_CONTEXT
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -231,6 +232,7 @@ DispStream(s, message)
     char * message;
 #endif
 {
+    dTHX;
 
 #if 0
     if (! trace)
@@ -289,6 +291,7 @@ InitStream(void)
 InitStream()
 #endif
 {
+    dTHX;
     di_stream *s ;
 
     ZMALLOC(s, di_stream) ;
@@ -317,6 +320,7 @@ PostInitStream(s, flags, bufsize)
 bool
 setupFilters(di_stream* s, AV* filters, const char* properties)
 {
+    dTHX;
     int i = 0;
 
     if (properties) {
@@ -353,6 +357,7 @@ setupFilters(di_stream* s, AV* filters, const char* properties)
 void
 destroyStream(di_stream * s)
 {
+    dTHX;
     if (s)
     {
         int i;
@@ -547,6 +552,7 @@ di_stream* s;
 SV* output ;
 #endif
 {
+    dTHX;
     uint32_t size;
     int cur_length =  SvCUR(output) ;
     lzma_ret status = lzma_properties_size(&size, &s->filters[0]);
@@ -862,7 +868,7 @@ code (s, buf, output)
     if (DO_UTF8(buf) && !sv_utf8_downgrade(buf, 1))
          croak("Wide character in " COMPRESS_CLASS "::code input parameter");
 #endif         
-    s->stream.next_in = (uint8_t*)SvPVbyte_nolen(buf) ;
+    s->stream.next_in = (uint8_t*)SvPV_nomg_nolen(buf) ;
     s->stream.avail_in = SvCUR(buf) ;
      
     //if (is_tainted)
@@ -890,7 +896,7 @@ code (s, buf, output)
 
         if (s->stream.avail_out == 0) {
 	    /* out of space in the output buffer so make it bigger */
-            s->stream.next_out = Sv_Grow(output, SvLEN(output) + bufinc) ;
+            s->stream.next_out = (uint8_t*)Sv_Grow(output, SvLEN(output) + bufinc) ;
             cur_length += increment ;
             s->stream.next_out += cur_length ;
             increment = bufinc ;
@@ -971,7 +977,7 @@ flush(s, output, f=LZMA_FINISH)
     for (;;) {
         if (s->stream.avail_out == 0) {
 	    /* consumed all the available output, so extend it */
-            s->stream.next_out = Sv_Grow(output, SvLEN(output) + bufinc) ;
+            s->stream.next_out = (uint8_t*)Sv_Grow(output, SvLEN(output) + bufinc) ;
             cur_length += increment ;
             s->stream.next_out += cur_length ;
             increment = bufinc ;
@@ -1140,7 +1146,6 @@ code (s, buf, output)
     uInt	cur_length = 0;
     uInt	prefix_length = 0;
     uInt	increment = 0;
-    STRLEN  stmp   = NO_INIT
     uInt    bufinc = NO_INIT
   PREINIT:
 #ifdef UTF8_AVAILABLE    
@@ -1162,7 +1167,7 @@ code (s, buf, output)
 #endif         
     
     /* initialise the input buffer */
-    s->stream.next_in = (uint8_t*)SvPVbyte_force(buf, stmp) ;
+    s->stream.next_in = (uint8_t*)SvPV_nomg_nolen(buf) ;
     s->stream.avail_in = SvCUR(buf);
 	
     /* and retrieve the output buffer */
@@ -1208,7 +1213,7 @@ code (s, buf, output)
 
         if (s->stream.avail_out == 0) {
 	    /* out of space in the output buffer so make it bigger */
-            s->stream.next_out = Sv_Grow(output, SvLEN(output) + bufinc + 1) ;
+            s->stream.next_out = (uint8_t*)Sv_Grow(output, SvLEN(output) + bufinc + 1) ;
             cur_length += increment ;
             s->stream.next_out += cur_length ;
             increment = bufinc ;
