@@ -1,9 +1,9 @@
 
                             Compress-Raw-Lzma
 
-                         Version 2.057
+                         Version 2.058
 
-                            10th November 2012
+                            12th November 2012
 
        Copyright (c) 2009-2012 Paul Marquess. All rights reserved.
           This program is free software; you can redistribute it
@@ -161,7 +161,7 @@ To help me help you, I need all of the following information:
         If you haven't installed Compress-Raw-Lzma then search Compress::Raw::Lzma.pm
         for a line like this:
 
-          $VERSION = "2.057" ;
+          $VERSION = "2.058" ;
 
      c. The version of lzma you have used.
         If you have successfully installed Compress-Raw-Lzma, this one-liner
