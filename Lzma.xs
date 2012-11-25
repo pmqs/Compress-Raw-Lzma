@@ -1147,6 +1147,7 @@ code (s, buf, output)
     uInt	prefix_length = 0;
     uInt	increment = 0;
     uInt    bufinc = NO_INIT
+    STRLEN  na = NO_INIT ;
   PREINIT:
 #ifdef UTF8_AVAILABLE    
     bool	out_utf8  = FALSE;
@@ -1159,8 +1160,11 @@ code (s, buf, output)
     /* If the buffer is a reference, dereference it */
     buf = deRef(buf, (char*)"inflate") ;
 
-    if (s->flags & FLAG_CONSUME_INPUT && SvREADONLY(buf))
-        croak(UNCOMPRESS_CLASS "::code input parameter cannot be read-only when ConsumeInput is specified");
+    if (s->flags & FLAG_CONSUME_INPUT) {
+        if (SvREADONLY(buf))
+            croak(UNCOMPRESS_CLASS "::code input parameter cannot be read-only when ConsumeInput is specified");
+        SvPV_force(buf, na);
+    }
 #ifdef UTF8_AVAILABLE    
     if (DO_UTF8(buf) && !sv_utf8_downgrade(buf, 1))
          croak("Wide character in " UNCOMPRESS_CLASS "::code input parameter");
