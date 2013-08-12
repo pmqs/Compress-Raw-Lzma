@@ -12,7 +12,7 @@ use Carp ;
 use bytes ;
 our ($VERSION, $XS_VERSION, @ISA, @EXPORT, $AUTOLOAD);
 
-$VERSION = '2.061';
+$VERSION = '2.062';
 $XS_VERSION = $VERSION; 
 $VERSION = eval $VERSION;
 
@@ -1067,7 +1067,7 @@ Valid values are 0-9 and C<LZMA_PRESET_DEFAULT>.
 0 is the fastest compression with the lowest memory usage and the lowest
 compression.
 
-9 is the slowest compession with the highest memory usage but with the best
+9 is the slowest compression with the highest memory usage but with the best
 compression.
 
 Defaults to C<LZMA_PRESET_DEFAULT>.
@@ -1080,7 +1080,7 @@ Defaults to 0.
 
 =item B<< Check => $check >>
 
-Used to specify the integrrity check used in the xz data stream.
+Used to specify the integrity check used in the xz data stream.
 Valid values are C<LZMA_CHECK_NONE>, C<LZMA_CHECK_CRC32>,
 C<LZMA_CHECK_CRC64>, C<LZMA_CHECK_SHA256>.
 
@@ -1177,7 +1177,7 @@ values will be used.
 
 =item B<< Check => $check >>
 
-Used to specify the integrrity check used in the xz data stream.
+Used to specify the integrity check used in the xz data stream.
 Valid values are C<LZMA_CHECK_NONE>, C<LZMA_CHECK_CRC32>,
 C<LZMA_CHECK_CRC64>, C<LZMA_CHECK_SHA256>.
 
@@ -1578,7 +1578,7 @@ Defaults to 0.
 
 The sub-classes of C<Lzma::Filter::BCJ> are the
 Branch/Call/Jump conversion filters. These filters are used to rewrite
-executable binary code for a number of processor acchitectures. 
+executable binary code for a number of processor architectures. 
 None of these classes take any options.
 
 =over 5
@@ -1619,7 +1619,7 @@ Usage is
 
 =item Type => $type
 
-Defines the type of Delta caclulation. The only available type (and
+Defines the type of Delta calculation. The only available type (and
 therefore the default) is
 C<LZMA_DELTA_TYPE_BYTE>,
 

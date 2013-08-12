@@ -158,8 +158,12 @@ sub ParseCONFIG
     die "The following keys are missing from $CONFIG  [@missing]\n" 
         if @missing = keys %Parsed ;
 
-    $LIBLZMA_INCLUDE = $ENV{'LIBLZMA_INCLUDE'} || $Info{'INCLUDE'} ;
-    $LIBLZMA_LIB = $ENV{'LIBLZMA_LIB'} || $Info{'LIB'} ;
+    $LIBLZMA_INCLUDE = defined $ENV{'LIBLZMA_INCLUDE'} 
+                            ? $ENV{'LIBLZMA_INCLUDE'} 
+                            : $Info{'INCLUDE'} ;
+    $LIBLZMA_LIB = defined $ENV{'LIBLZMA_LIB'} 
+                            ? $ENV{'LIBLZMA_LIB'} 
+                            : $Info{'LIB'} ;
 
     if ($^O eq 'VMS') {
         $LIBLZMA_INCLUDE = VMS::Filespec::vmspath($LIBLZMA_INCLUDE);
