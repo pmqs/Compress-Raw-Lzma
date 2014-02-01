@@ -9,7 +9,7 @@ BEGIN {
 use lib 't';
 use strict;
 use warnings;
-use bytes;
+# use bytes;
 
 use Test::More  ;
 #use CompTestUtils;

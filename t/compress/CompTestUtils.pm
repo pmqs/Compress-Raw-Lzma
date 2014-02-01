@@ -4,7 +4,7 @@ package main ;
 
 use strict ;
 use warnings;
-use bytes;
+# use bytes;
 
 #use lib qw(t t/compress);
 
@@ -28,7 +28,7 @@ sub like_eval
 {
     package LexFile ;
 
-    our ($index);
+    use vars qw($index);
     $index = '00000';
     
     sub new
@@ -421,7 +421,7 @@ sub compressBuffer
     return $out ;
 }
 
-our ($AnyUncompressError);
+use vars qw($AnyUncompressError);
 BEGIN
 {
     eval ' use IO::Uncompress::AnyUncompress qw($AnyUncompressError); ';

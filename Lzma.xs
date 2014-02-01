@@ -857,6 +857,7 @@ code (s, buf, output)
     lzma_ret	RETVAL = LZMA_OK;
     uInt   bufinc = NO_INIT
     //bool is_tainted  = getTaint3;
+    STRLEN    origlen = NO_INIT
   CODE:
     bufinc = s->bufsize;
 
@@ -868,8 +869,8 @@ code (s, buf, output)
     if (DO_UTF8(buf) && !sv_utf8_downgrade(buf, 1))
          croak("Wide character in " COMPRESS_CLASS "::code input parameter");
 #endif         
-    s->stream.next_in = (uint8_t*)SvPV_nomg_nolen(buf) ;
-    s->stream.avail_in = SvCUR(buf) ;
+    s->stream.next_in = (uint8_t*)SvPV_nomg(buf, origlen) ;
+    s->stream.avail_in = origlen;
      
     //if (is_tainted)
         //setTainted(output);
@@ -926,7 +927,7 @@ code (s, buf, output)
     }
 
     s->compressedBytes    += cur_length + increment - s->stream.avail_out ;
-    s->uncompressedBytes  += SvCUR(buf) - s->stream.avail_in  ;
+    s->uncompressedBytes  += origlen - s->stream.avail_in  ;
 
     s->last_error = RETVAL ;
     if (RETVAL == LZMA_OK) {
@@ -1148,6 +1149,7 @@ code (s, buf, output)
     uInt	increment = 0;
     uInt    bufinc = NO_INIT
     STRLEN  na = NO_INIT ;
+    STRLEN  origlen = NO_INIT
   PREINIT:
 #ifdef UTF8_AVAILABLE    
     bool	out_utf8  = FALSE;
@@ -1171,8 +1173,8 @@ code (s, buf, output)
 #endif         
     
     /* initialise the input buffer */
-    s->stream.next_in = (uint8_t*)SvPV_nomg_nolen(buf) ;
-    s->stream.avail_in = SvCUR(buf);
+    s->stream.next_in = (uint8_t*)SvPV_nomg(buf, origlen) ;
+    s->stream.avail_in = origlen;
 	
     /* and retrieve the output buffer */
     output = deRef_l(output, (char*)"inflate") ;
@@ -1255,7 +1257,7 @@ code (s, buf, output)
 
         s->bytesInflated = cur_length + increment - s->stream.avail_out - prefix_length;
         s->uncompressedBytes += s->bytesInflated ;
-        s->compressedBytes   += SvCUR(buf) - s->stream.avail_in  ;
+        s->compressedBytes   += origlen - s->stream.avail_in  ;
 
         SvPOK_only(output);
         SvCUR_set(output, prefix_length + s->bytesInflated) ;

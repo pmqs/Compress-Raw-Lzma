@@ -9,10 +9,10 @@ require Exporter;
 use AutoLoader;
 use Carp ;
 
-use bytes ;
-our ($VERSION, $XS_VERSION, @ISA, @EXPORT, $AUTOLOAD);
+# use bytes ;
+use vars qw($VERSION $XS_VERSION @ISA @EXPORT $AUTOLOAD);
 
-$VERSION = '2.063';
+$VERSION = '2.064';
 $XS_VERSION = $VERSION; 
 $VERSION = eval $VERSION;
 
@@ -1670,7 +1670,7 @@ See the Changes file.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2005-2013 Paul Marquess. All rights reserved.
+Copyright (c) 2005-2014 Paul Marquess. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
