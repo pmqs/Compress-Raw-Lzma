@@ -12,7 +12,7 @@ use Carp ;
 # use bytes ;
 use vars qw($VERSION $XS_VERSION @ISA @EXPORT $AUTOLOAD);
 
-$VERSION = '2.065';
+$VERSION = '2.066';
 $XS_VERSION = $VERSION; 
 $VERSION = eval $VERSION;
 
