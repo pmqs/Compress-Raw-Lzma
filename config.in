@@ -17,4 +17,7 @@
 INCLUDE         = /usr/local/include
 LIB             = /usr/local/lib
 
+#INCLUDE         = ./libraries/5.2.1/include
+#LIB             = ./libraries/5.2.1/lib
+
 # end of file config.in
