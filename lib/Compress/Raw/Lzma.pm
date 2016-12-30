@@ -9,10 +9,10 @@ require Exporter;
 use AutoLoader;
 use Carp ;
 
-# use bytes ;
-use vars qw($VERSION $XS_VERSION @ISA @EXPORT $AUTOLOAD);
+use bytes ;
+our ($VERSION, $XS_VERSION, @ISA, @EXPORT, $AUTOLOAD);
 
-$VERSION = '2.070';
+$VERSION = '2.071';
 $XS_VERSION = $VERSION; 
 $VERSION = eval $VERSION;
 
