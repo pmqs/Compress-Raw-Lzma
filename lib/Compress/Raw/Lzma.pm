@@ -12,7 +12,7 @@ use Carp ;
 use bytes ;
 our ($VERSION, $XS_VERSION, @ISA, @EXPORT, $AUTOLOAD);
 
-$VERSION = '2.071';
+$VERSION = '2.072';
 $XS_VERSION = $VERSION; 
 $VERSION = eval $VERSION;
 
@@ -1030,6 +1030,13 @@ for use by the  C<IO::Compress::Lzma>, C<IO::Uncompress::UnLzma>,
 C<IO::Compress::Xz> and C<IO::Uncompress::UnXz> modules, it can be used on
 its own for simple compression/uncompression tasks.
 
+There are two functions, called C<code> and C<flush>, used in all the
+compression and uncompression interfaces defined in this module. By default
+both of these functions overwrites any data stored in its output buffer
+parameter. If you want to compress/uncompress to a single buffer, and have
+C<code> and C<flush> append to that buffer, enable the C<AppendOutput>
+option when you create the compression/decompression object.
+
 =head1 Compression
 
 There are four compression interfaces available in this module.
@@ -1091,7 +1098,9 @@ Defaults to C<LZMA_CHECK_CRC32>.
 Controls whether the compressed data is appended to the output buffer in
 the C<code> and C<flush> methods.
 
-Defaults to 1.
+Defaults to 0.
+(Note in versions of this module prior to 2.072 the defaut value was
+incorrectly documented as 1).
 
 =item B<< BufSize => $number >>
 
@@ -1133,7 +1142,9 @@ values will be used.
 Controls whether the compressed data is appended to the output buffer in
 the C<code> and C<flush> methods.
 
-Defaults to 1.
+Defaults to 0.
+(Note in versions of this module prior to 2.072 the defaut value was
+incorrectly documented as 1).
 
 =item B<< BufSize => $number >>
 
@@ -1188,7 +1199,9 @@ Defaults to C<LZMA_CHECK_CRC32>.
 Controls whether the compressed data is appended to the output buffer in
 the C<code> and C<flush> methods.
 
-Defaults to 1.
+Defaults to 0.
+(Note in versions of this module prior to 2.072 the defaut value was
+incorrectly documented as 1).
 
 =item B<< BufSize => $number >>
 
@@ -1235,7 +1248,9 @@ values will be used.
 Controls whether the compressed data is appended to the output buffer in
 the C<code> and C<flush> methods.
 
-Defaults to 1.
+Defaults to 0.
+(Note in versions of this module prior to 2.072 the defaut value was
+incorrectly documented as 1).
 
 =item B<< BufSize => $number >>
 
@@ -1670,7 +1685,7 @@ See the Changes file.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2005-2016 Paul Marquess. All rights reserved.
+Copyright (c) 2005-2017 Paul Marquess. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

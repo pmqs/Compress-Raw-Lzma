@@ -1,6 +1,12 @@
 CHANGES
 -------
 
+  2.072 4 Feb 2017
+      * Makefile.PL
+        #120084: Need Fix for Makefile.PL depending on . in @INC
+
+      * #105460: use of Compress::Raw::Lzma::RawDecoder fails with large amount of data
+        AppendOutput for "encode" methods said default was 1. It is actually.
 
   2.070 28 Dec 2016
 
