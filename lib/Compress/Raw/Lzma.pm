@@ -12,7 +12,7 @@ use Carp ;
 use bytes ;
 our ($VERSION, $XS_VERSION, @ISA, @EXPORT, $AUTOLOAD);
 
-$VERSION = '2.072';
+$VERSION = '2.073';
 $XS_VERSION = $VERSION; 
 $VERSION = eval $VERSION;
 
@@ -1651,13 +1651,23 @@ Default is C<LZMA_DELTA_DIST_MIN>.
 
 =head2 my $version = Compress::Raw::Lzma::lzma_version_number();
 
-Returns the version of the underlying lzma library.
+Returns the version of the underlying lzma library this module is using at
+run-time as a number.
 
 =head2 my $version = Compress::Raw::Lzma::lzma_version_string();
 
-Returns the version of the underlying lzma library.
+Returns the version of the underlying lzma library this module is using at
+run-time as a string.
 
-TODO - more here
+=head2 my $version = Compress::Raw::Lzma::LZMA_VERSION();
+
+Returns the version of the underlying lzma library this module was using at
+compile-time as a number.
+
+=head2 my $version = Compress::Raw::Lzma::LZMA_VERSION_STRING();
+
+Returns the version of the underlying lzma library this module was using at
+compile-time as a string.
 
 =head1 Constants
 

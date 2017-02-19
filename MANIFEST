@@ -9,7 +9,7 @@ MANIFEST
 ppport.h
 private/MakeUtil.pm
 README
-t/000prereq.t	     
+t/001version.t
 t/02filters.t	
 t/09limitoutput.t
 t/01llzma-generic.t  

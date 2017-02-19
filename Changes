@@ -1,6 +1,16 @@
 CHANGES
 -------
 
+  2.073 18 Feb 2017
+
+      * Lzma.xs
+        Comment out unused variables & remove C++-ism
+        #120272: [PATCH] Unbreak compilation
+
+      * Make failure when LZMA_VERSION != lzma_version_number more excplicit
+
+      * Added interface to LZMA_VERSION and LZMA_VERSION_STRING
+
   2.072 4 Feb 2017
       * Makefile.PL
         #120084: Need Fix for Makefile.PL depending on . in @INC

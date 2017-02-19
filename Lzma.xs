@@ -206,7 +206,7 @@ int error_no ;
     return errstr ;
 }
 
-#if 1
+#if 0
 static void
 #ifdef CAN_PROTOTYPE
 DispHex(void * ptr, int length)
@@ -556,11 +556,11 @@ SV* output ;
     uint32_t size;
     int cur_length =  SvCUR(output) ;
     lzma_ret status = lzma_properties_size(&size, &s->filters[0]);
+    uint8_t *props ;
 
     if (status != LZMA_OK)
         return status;
 
-    uint8_t *props ;
 
     Sv_Grow(output, SvLEN(output) + size + 4) ;
     props = (uint8_t*) SvPVbyte_nolen(output) + cur_length;
@@ -589,23 +589,27 @@ PROTOTYPES:	DISABLE
 INCLUDE: constants.xs
 
 BOOT:
-    int t = trace; t = t;
-    if (lzma_version_number() != LZMA_VERSION)
     {
-        croak("Version Mismatch - Built with version %d, library used is version %d\n", LZMA_VERSION, lzma_version_number());
+        PERL_UNUSED_VAR(trace);
     }
-    //set_compression_settings();
-    //lzma_init();
 
 	
 
 MODULE = Compress::Raw::Lzma PACKAGE = Compress::Raw::Lzma PREFIX = MY_
+
+#define MY_LZMA_VERSION() LZMA_VERSION
+uint32_t
+MY_LZMA_VERSION()
 
 uint32_t
 lzma_version_number()
 
 const char * 
 lzma_version_string() 
+
+#define MY_LZMA_VERSION_STRING() LZMA_VERSION_STRING
+const char * 
+MY_LZMA_VERSION_STRING() 
 
 #define MY_LZMA_FILTER_LZMA1() LZMA_FILTER_LZMA1
 uint64_t 
