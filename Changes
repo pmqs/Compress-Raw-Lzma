@@ -3,7 +3,7 @@ CHANGES
 
   2.086 31 March 2019
 
-      * Moved source to github https://github.com/pmqs/BerkeleyDB
+      * Moved source to github https://github.com/pmqs/Compress-Raw-Lzma
 
       * Add META_MERGE to Makefile.PL
 
