@@ -1140,6 +1140,9 @@ DESTROY(s)
     Compress::Raw::Lzma::Decoder	s
   CODE:
     lzma_end(&s->stream) ;
+#if LZMA_VERSION <= 50020042    
+    Safefree(s->filters[0].options) ;
+#endif
     destroyStream(s) ;
 
 
