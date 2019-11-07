@@ -1,6 +1,11 @@
 CHANGES
 -------
 
+  2.090 3 November 2019
+
+      * Memory leak in raw_decoder
+        05c0eac3ab1edd05e5bc945463af004dcbc88c00
+
   2.089 3 November 2019
 
       * No Changes
