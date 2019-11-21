@@ -326,7 +326,9 @@ setupFilters(di_stream* s, AV* filters, const char* properties)
     int i = 0;
 
     if (properties) {
+        s->extraFree = TRUE;
         s->filters[i].id = LZMA_FILTER_LZMA1;
+
         if (lzma_properties_decode(&s->filters[i], NULL, 
                 (const uint8_t*)properties, 5) != LZMA_OK)
             return FALSE;
@@ -362,6 +364,9 @@ destroyStream(di_stream * s)
     dTHX;
     if (s)
     {
+        if (s->extraFree)
+            free(s->filters[0].options) ;
+
         int i;
         for (i = 0; i < LZMA_FILTERS_MAX; ++i)
         {
@@ -717,7 +722,6 @@ lzma_raw_encoder(Class, flags, bufsize, filters, forZip)
         setupFilters(s, filters, NULL);
 
         s->forZip = forZip ;
-        s->extraFree = TRUE;
         err = lzma_raw_encoder ( &(s->stream), (const lzma_filter*)&s->filters );
 
         if (err != LZMA_OK) {
@@ -1143,8 +1147,6 @@ DESTROY(s)
     Compress::Raw::Lzma::Decoder	s
   CODE:
     lzma_end(&s->stream) ;
-    if (s->extraFree)
-        Safefree(s->filters[0].options) ;
     destroyStream(s) ;
 
 
