@@ -364,10 +364,11 @@ destroyStream(di_stream * s)
     dTHX;
     if (s)
     {
+        int i;
+
         if (s->extraFree)
             free(s->filters[0].options) ;
 
-        int i;
         for (i = 0; i < LZMA_FILTERS_MAX; ++i)
         {
             if (s->sv_filters[i])
