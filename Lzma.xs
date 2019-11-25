@@ -52,7 +52,7 @@ typedef struct di_stream {
 
     //bool     is_tainted;
     bool        forZip;
-    bool        extraFree ;
+    void*       extraAddress ;
     lzma_stream stream ; 
 
     lzma_filter filters[LZMA_FILTERS_MAX + 1];
@@ -285,6 +285,21 @@ DispStream(s, message)
 }
 #endif
 
+void* my_alloc (void* opaque, size_t items, size_t size)
+{
+    PERL_UNUSED_VAR(opaque);
+    printf("# ALLOC %d %d = %d\n", items, size, items * size);
+    return safemalloc(items * size);
+}
+
+void my_free (void* opaque, void* ptr)
+{
+    PERL_UNUSED_VAR(opaque);
+    safefree(ptr);
+    printf("# FREE\n");
+    return; 
+}
+
 static di_stream *
 #ifdef CAN_PROTOTYPE
 InitStream(void)
@@ -299,7 +314,11 @@ InitStream()
 
     /* lzma_memory_usage(lzma_preset_lzma, TRUE); */
 
-    s->extraFree = FALSE;
+    ZMALLOC(allocator, lzma_allocator) ;
+    allocator->alloc = my_alloc;
+    allocator->free = my_free;
+    s->stream.allocator = allocator;
+
     return s ;
     
 }
@@ -326,12 +345,14 @@ setupFilters(di_stream* s, AV* filters, const char* properties)
     int i = 0;
 
     if (properties) {
-        s->extraFree = TRUE;
         s->filters[i].id = LZMA_FILTER_LZMA1;
 
         if (lzma_properties_decode(&s->filters[i], NULL, 
                 (const uint8_t*)properties, 5) != LZMA_OK)
             return FALSE;
+	    
+        s->extraAddress = (void*)properties;
+	    
         ++i;
 
     }
@@ -366,9 +387,12 @@ destroyStream(di_stream * s)
     {
         int i;
 
-        if (s->extraFree)
-            free(s->filters[0].options) ;
+        if (s->extraAddress && s->extraAddress == s->filters[0].options)
+            Safefree(s->extraAddress) ;
 
+	if (s->stream.allocator)
+    	    Safefree(s->stream.allocator);
+	    
         for (i = 0; i < LZMA_FILTERS_MAX; ++i)
         {
             if (s->sv_filters[i])
