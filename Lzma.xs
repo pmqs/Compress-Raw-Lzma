@@ -288,7 +288,6 @@ DispStream(s, message)
 void* my_alloc (void* opaque, size_t items, size_t size)
 {
     PERL_UNUSED_VAR(opaque);
-    printf("# ALLOC %d %d = %d\n", items, size, items * size);
     return safemalloc(items * size);
 }
 
@@ -296,7 +295,6 @@ void my_free (void* opaque, void* ptr)
 {
     PERL_UNUSED_VAR(opaque);
     safefree(ptr);
-    printf("# FREE\n");
     return; 
 }
 
@@ -309,6 +307,7 @@ InitStream()
 {
     dTHX;
     di_stream *s ;
+    lzma_allocator * allocator;
 
     ZMALLOC(s, di_stream) ;
 
@@ -320,7 +319,6 @@ InitStream()
     s->stream.allocator = allocator;
 
     return s ;
-    
 }
 
 static void
