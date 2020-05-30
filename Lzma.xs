@@ -915,9 +915,10 @@ code (s, buf, output)
          croak("Wide character in " COMPRESS_CLASS "::code output parameter");
 #endif
 
-    if((s->flags & FLAG_APPEND_OUTPUT) != FLAG_APPEND_OUTPUT) {
+    if((s->flags & FLAG_APPEND_OUTPUT) == FLAG_APPEND_OUTPUT) {
+        SvOOK_off(output);
+    } else {
         SvCUR_set(output, 0);
-        /* sv_setpvn(output, "", 0); */
     }
 
     if (s->forZip)
@@ -996,9 +997,10 @@ flush(s, output, f=LZMA_FINISH)
     if (DO_UTF8(output) && !sv_utf8_downgrade(output, 1))
          croak("Wide character in " COMPRESS_CLASS "::flush input parameter");
 #endif
-    if((s->flags & FLAG_APPEND_OUTPUT) != FLAG_APPEND_OUTPUT) {
+    if((s->flags & FLAG_APPEND_OUTPUT) == FLAG_APPEND_OUTPUT) {
+        SvOOK_off(output);
+    } else {
         SvCUR_set(output, 0);
-        /* sv_setpvn(output, "", 0); */
     }
 
     if (s->forZip)
@@ -1218,7 +1220,9 @@ code (s, buf, output)
     if (DO_UTF8(output) && !sv_utf8_downgrade(output, 1))
          croak("Wide character in " UNCOMPRESS_CLASS "::code output parameter");
 #endif
-    if((s->flags & FLAG_APPEND_OUTPUT) != FLAG_APPEND_OUTPUT) {
+    if((s->flags & FLAG_APPEND_OUTPUT) == FLAG_APPEND_OUTPUT) {
+        SvOOK_off(output);
+    } else {
         SvCUR_set(output, 0);
     }
 
