@@ -33,6 +33,10 @@ jobs:
         perl-version: ${{ matrix.perl }}
     - name: Perl version
       run: perl -V
+    # Install liblzma on windows
+    - name: Install liblzma 
+      run: |
+        vcpkg install liblzma
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
     - name: Build
