@@ -108,8 +108,11 @@ jobs:
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
       
-    - name: Build
-      run: perl Makefile.PL LIBS="-L${{ env.LZMA_LIB }} -llzma" && make
+    - name: Build1
+      run: perl Makefile.PL LIBS="-L${{ env.LIBLZMA_LIB }} -llzma" && cat Makefile
+
+    - name: Build2
+      run: make
       
     - name: Test
       run: make test
