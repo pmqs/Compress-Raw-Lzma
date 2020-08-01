@@ -58,7 +58,7 @@ jobs:
       run: cpanm --quiet --installdeps --notest .
       
     - name: Build
-      run: perl Makefile.PL INC="-I${{ env.VCPKG_INC }}" LIB="=L${{ env.VCPKG_LIB }}" && make
+      run: perl Makefile.PL INC="-I${{ env.VCPKG_INC }}" LIB="-L${{ env.VCPKG_LIB }}" && make
       
     - name: Test
       run: make test
