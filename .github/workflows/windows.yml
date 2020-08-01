@@ -46,15 +46,14 @@ jobs:
       shell: bash
       run: |
         vcpkg install liblzma
-        vcpkg integrate install
-        dir C:/vcpkg/packages/liblzma_x86-windows/share/liblzma
-        dir ${{ env:VCPKG_INC }}
-        dir ${{ env:VCPKG_LIB }}
+        ls C:/vcpkg/packages/liblzma_x86-windows/share/liblzma
+        ls $VCPKG_INC        
+    
         
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
     - name: Build
       shell: bash
-      run: perl Makefile.PL INC="-I${{ env:VCPKG_INC }}" LIB="=L${{ env:VCPKG_LIB }}" && make
+      run: perl Makefile.PL INC="-IVCPKG_INC" LIB="=L$VCPKG_LIB" && make
     - name: Test
       run: make test
