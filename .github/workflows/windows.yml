@@ -37,6 +37,7 @@ jobs:
     - name: Install liblzma 
       run: |
         vcpkg install liblzma
+        vcpkg integrate install
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
     - name: Build
