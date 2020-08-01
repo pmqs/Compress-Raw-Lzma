@@ -40,9 +40,10 @@ jobs:
         vcpkg install liblzma
         vcpkg integrate install
         dir C:/vcpkg/packages/liblzma_x86-windows/share/liblzma
+        dir %VCPKG_ROOT%\installed\%TRIPLET%\include
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
     - name: Build
-      run: perl Makefile.PL && make
+      run: perl Makefile.PL INC="-I%VCPKG_ROOT%\installed\%TRIPLET%\include" LIB="=L%VCPKG_ROOT%\installed\%TRIPLET%\lib" && make
     - name: Test
       run: make test
