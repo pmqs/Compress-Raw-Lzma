@@ -107,7 +107,7 @@ jobs:
       run: vcpkg install liblzma  
       
     - name: Set Path for lzma lib
-      run: echo "::add-path::$LIBLZMA_LIB"    
+      run: echo "::add-path::${{ env.LIBLZMA_LIB }}"    
       
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
