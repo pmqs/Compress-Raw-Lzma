@@ -48,13 +48,11 @@ jobs:
         echo "::set-env name=VCPKG_LIB::$VCPKG_ROOT/installed/$TRIPLET/lib"
         echo "::set-env name=VCPKG_INC::$VCPKG_ROOT/installed/$TRIPLET/include"
 
-    - name: env 
+    - name: find 
       shell: bash
       run: |
-        echo VCPKG_INSTALLED $VCPKG_INSTALLED
-        echo VCPKG_LIB $VCPKG_LIB
-        echo VCPKG_INC $VCPKG_INC
-        ls $VCPKG_INC        
+        find /c/vcpkg
+      
     
         
     - name: Install dependencies
