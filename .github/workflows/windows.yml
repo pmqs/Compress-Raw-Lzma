@@ -27,33 +27,43 @@ jobs:
 
     name: Perl ${{ matrix.perl }}
     steps:
+      
     - uses: actions/checkout@v1
+      
     - name: Setup perl
       uses: shogo82148/actions-setup-perl@v1
       with:
         perl-version: ${{ matrix.perl }}
+        
     - name: Perl version
       run: perl -V
       
     - name: Set path
       shell: bash
       run: |
-        echo "::set-env name=VCPKG_LIB::$VCPKG_ROOT\installed\$TRIPLET\lib"
-        echo "::set-env name=VCPKG_INC::$VCPKG_ROOT\installed\$TRIPLET\include"
+        echo "::set-env name=VCPKG_INSTALLED::$VCPKG_ROOT/installed"        
+        echo "::set-env name=VCPKG_LIB::$VCPKG_ROOT/installed\$TRIPLET\lib"
+        echo "::set-env name=VCPKG_INC::$VCPKG_ROOT/installed\$TRIPLET\include"
         
     # Install liblzma on windows
     - name: Install liblzma 
       shell: bash
       run: |
         vcpkg install liblzma
-        ls C:/vcpkg/packages/liblzma_x86-windows/share/liblzma
+        echo VCPKG_INSTALLED $VCPKG_INSTALLED
+        echo VCPKG_LIB $VCPKG_LIB
+        echo VCPKG_INC $VCPKG_INC
         ls $VCPKG_INC        
     
         
     - name: Install dependencies
+      shell: bash
       run: cpanm --quiet --installdeps --notest .
+      
     - name: Build
       shell: bash
       run: perl Makefile.PL INC="-IVCPKG_INC" LIB="=L$VCPKG_LIB" && make
+      
     - name: Test
+      shell: bash
       run: make test
