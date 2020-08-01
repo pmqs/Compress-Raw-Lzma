@@ -99,12 +99,16 @@ jobs:
       with:
         path: ${{ env.VCPKG_INSTALLED }}
         key: lzma-${{ matrix.perl }}
-
+    
+       
     # Install liblzma on windows
     - name: Install liblzma 
       if: ${{ steps.my-cache.outputs.cache-hit != 'true' }}
       run: vcpkg install liblzma  
-    
+      
+    - name: Set Path for lzma lib
+      run: echo "::add-path::$LIBLZMA_LIB"    
+      
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
       
