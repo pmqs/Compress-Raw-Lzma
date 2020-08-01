@@ -52,7 +52,7 @@ on: [push, pull_request]
   # /c/vcpkg/installed/x86-windows/share/liblzma/vcpkg_abi_info.txt
 
 env:
-  VCPKG_INSTALLED: C:\vcpkg\installed
+  VCPKG_INSTALLED: /c/vcpkg/installed
   LIBLZMA_LIB: C:\vcpkg\installed\x86-windows\bin
   LIBLZMA_INCLUDE: C:\vcpkg\installed\x86-windows\include
  
@@ -85,7 +85,7 @@ jobs:
       
     - uses: actions/checkout@v1
       
-    - name: Setup perl
+    - name: Setup perl ${{ matrix.perl }}
       uses: shogo82148/actions-setup-perl@v1
       with:
         perl-version: ${{ matrix.perl }}
@@ -103,14 +103,13 @@ jobs:
     # Install liblzma on windows
     - name: Install liblzma 
       if: ${{ steps.my-cache.outputs.cache-hit != 'true' }}
-      run: |
-        vcpkg install liblzma  
+      run: vcpkg install liblzma  
     
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
       
     - name: Build
-      run: perl Makefile.PL LIBS="-L${{ env.LZMA_LIB }} -llzma" && dir && perl test.pl
+      run: perl Makefile.PL LIBS="-L${{ env.LZMA_LIB }} -llzma" && make
       
     - name: Test
-      run: perl install.pl
+      run: make test
