@@ -50,6 +50,13 @@ jobs:
       shell: bash
       run: |
         vcpkg install liblzma
+        echo "::set-env name=VCPKG_INSTALLED::$VCPKG_ROOT/installed"        
+        echo "::set-env name=VCPKG_LIB::$VCPKG_ROOT/installed\$TRIPLET\lib"
+        echo "::set-env name=VCPKG_INC::$VCPKG_ROOT/installed\$TRIPLET\include"
+
+    - name: env 
+      shell: bash
+      run: |
         echo VCPKG_INSTALLED $VCPKG_INSTALLED
         echo VCPKG_LIB $VCPKG_LIB
         echo VCPKG_INC $VCPKG_INC
