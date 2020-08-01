@@ -2,7 +2,13 @@ name: Windows build
 
 on: [push, pull_request]
 
+env:
+  VCPKG_INSTALLED: C:\vcpkg\installed
+  LIBLZMA_LIB: C:\vcpkg\installed\x86-windows\lib
+  LIBLZMA_INCLUDE: C:\vcpkg\installed\x86-windows\include
+ 
 jobs:
+
   build:
 
     runs-on: windows-latest
@@ -38,14 +44,21 @@ jobs:
     - name: Perl version
       run: perl -V
       
-       
+#     - name: Environmant 
+#       run: |
+#         vcpkg install liblzma
+#         echo "::set-env name=VCPKG_INSTALLED::C:\vcpkg\installed"        
+#         echo "::set-env name=VCPKG_LIB::C:\vcpkg\installed\x86-windows\lib"
+#         echo "::set-env name=VCPKG_INC::C:\vcpkg\installed\x86-windows\include"
+
     # Install liblzma on windows
     - name: Install liblzma 
       run: |
         vcpkg install liblzma
-        echo "::set-env name=VCPKG_INSTALLED::C:\vcpkg\installed"        
-        echo "::set-env name=VCPKG_LIB::C:\vcpkg\installed\x86-windows\lib"
-        echo "::set-env name=VCPKG_INC::C:\vcpkg\installed\x86-windows\include"
+
+        # echo "::set-env name=VCPKG_INSTALLED::C:\vcpkg\installed"        
+        #e cho "::set-env name=VCPKG_LIB::C:\vcpkg\installed\x86-windows\lib"
+        #echo "::set-env name=VCPKG_INC::C:\vcpkg\installed\x86-windows\include"
 
 #     - name: find 
 #       shell: bash
@@ -58,7 +71,7 @@ jobs:
       run: cpanm --quiet --installdeps --notest .
       
     - name: Build
-      run: perl Makefile.PL INC="-I${{ env.VCPKG_INC }}" LIB="-L${{ env.VCPKG_LIB }}" && make
+      run: perl Makefile.PL && make
       
     - name: Test
       run: make test
