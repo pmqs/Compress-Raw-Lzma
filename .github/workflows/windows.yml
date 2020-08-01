@@ -44,14 +44,14 @@ jobs:
       shell: bash
       run: |
         vcpkg install liblzma
-        echo "::set-env name=VCPKG_INSTALLED::${{ env.VCPKG_ROOT }}/installed"        
-        echo "::set-env name=VCPKG_LIB::$VCPKG_ROOT/installed/$TRIPLET/lib"
-        echo "::set-env name=VCPKG_INC::$VCPKG_ROOT/installed/$TRIPLET/include"
+        echo "::set-env name=VCPKG_INSTALLED::/c/vcpkg/installed"        
+        echo "::set-env name=VCPKG_LIB::/c/vcpkg/installed/installed/x86-windows/lib"
+        echo "::set-env name=VCPKG_INC::/c/vcpkg/installed/installed/x86-windows/include"
 
-    - name: find 
-      shell: bash
-      run: |
-        find /c/vcpkg
+#     - name: find 
+#       shell: bash
+#       run: |
+#         find /c/vcpkg
       
     
         
