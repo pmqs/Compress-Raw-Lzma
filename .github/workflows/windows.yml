@@ -101,24 +101,14 @@ jobs:
     # Install liblzma on windows
     - name: Install liblzma 
       run: |
-        vcpkg install liblzma
-
-        # echo "::set-env name=VCPKG_INSTALLED::C:\vcpkg\installed"        
-        #e cho "::set-env name=VCPKG_LIB::C:\vcpkg\installed\x86-windows\lib"
-        #echo "::set-env name=VCPKG_INC::C:\vcpkg\installed\x86-windows\include"
-
-#     - name: find 
-#       shell: bash
-#       run: |
-#         find /c/vcpkg
-      
+        vcpkg install liblzma  
     
         
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
       
     - name: Build
-      run: perl Makefile.PL && make
+      run: perl Makefile.PL LIBS="-L${{ env.LZMA_LIB }} -llzma" && make
       
     - name: Test
       run: make test
