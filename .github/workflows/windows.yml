@@ -98,12 +98,19 @@ jobs:
 #         echo "::set-env name=VCPKG_LIB::C:\vcpkg\installed\x86-windows\lib"
 #         echo "::set-env name=VCPKG_INC::C:\vcpkg\installed\x86-windows\include"
 
+    - name: Check for cached install of lzma library
+      id: my-cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.VCPKG_INSTALLED }}
+        key: lzma-${{ matrix.perl }}
+
     # Install liblzma on windows
     - name: Install liblzma 
+      if: ${{ steps.my-cache.outputs.cache-hit != 'true' }}
       run: |
         vcpkg install liblzma  
     
-        
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
       
