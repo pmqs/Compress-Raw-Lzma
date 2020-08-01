@@ -41,12 +41,11 @@ jobs:
        
     # Install liblzma on windows
     - name: Install liblzma 
-      shell: bash
       run: |
         vcpkg install liblzma
-        echo "::set-env name=VCPKG_INSTALLED::/c/vcpkg/installed"        
-        echo "::set-env name=VCPKG_LIB::/c/vcpkg/installed/installed/x86-windows/lib"
-        echo "::set-env name=VCPKG_INC::/c/vcpkg/installed/installed/x86-windows/include"
+        echo "::set-env name=VCPKG_INSTALLED::C:\vcpkg\installed"        
+        echo "::set-env name=VCPKG_LIB::C:\vcpkg\installed\x86-windows\lib"
+        echo "::set-env name=VCPKG_INC::C:\vcpkg\installed\x86-windows\include"
 
 #     - name: find 
 #       shell: bash
@@ -56,13 +55,10 @@ jobs:
     
         
     - name: Install dependencies
-      shell: bash
       run: cpanm --quiet --installdeps --notest .
       
     - name: Build
-      shell: bash
       run: perl Makefile.PL INC="-IVCPKG_INC" LIB="=L$VCPKG_LIB" && make
       
     - name: Test
-      shell: bash
       run: make test
