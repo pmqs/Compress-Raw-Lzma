@@ -11,10 +11,11 @@ jobs:
       matrix:
         perl:
           - '5.32'
-          - '5.30'
-          - '5.28'
-          - '5.26'
-          - '5.24'
+#           - '5.30'
+#           - '5.28'
+#           - '5.26'
+#           - '5.24'
+            - 
           # - '5.22'
           # - '5.20'
           # - '5.18'
@@ -38,6 +39,7 @@ jobs:
       run: |
         vcpkg install liblzma
         vcpkg integrate install
+        dir C:/vcpkg/packages/liblzma_x86-windows/share/liblzma
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
     - name: Build
