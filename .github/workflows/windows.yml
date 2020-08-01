@@ -38,21 +38,15 @@ jobs:
     - name: Perl version
       run: perl -V
       
-    - name: Set path
-      shell: bash
-      run: |
-        echo "::set-env name=VCPKG_INSTALLED::$VCPKG_ROOT/installed"        
-        echo "::set-env name=VCPKG_LIB::$VCPKG_ROOT/installed\$TRIPLET\lib"
-        echo "::set-env name=VCPKG_INC::$VCPKG_ROOT/installed\$TRIPLET\include"
-        
+       
     # Install liblzma on windows
     - name: Install liblzma 
       shell: bash
       run: |
         vcpkg install liblzma
-        echo "::set-env name=VCPKG_INSTALLED::$VCPKG_ROOT/installed"        
-        echo "::set-env name=VCPKG_LIB::$VCPKG_ROOT/installed\$TRIPLET\lib"
-        echo "::set-env name=VCPKG_INC::$VCPKG_ROOT/installed\$TRIPLET\include"
+        echo "::set-env name=VCPKG_INSTALLED::${{ env.VCPKG_ROOT }}/installed"        
+        echo "::set-env name=VCPKG_LIB::$VCPKG_ROOT/installed/$TRIPLET/lib"
+        echo "::set-env name=VCPKG_INC::$VCPKG_ROOT/installed/$TRIPLET/include"
 
     - name: env 
       shell: bash
