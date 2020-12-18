@@ -1387,7 +1387,7 @@ _mk(want_lzma2, dict_size, lc, lp, pb, mode, nice_len, mf, depth, preset_dict)
         p = (lzma_options_lzma*)RETVAL->filter.options;
         setDefaultOptions(p);
 
-        RETVAL->dict = newSVsv( deRef(preset_dict, "preset dict") );
+        RETVAL->dict = newSVsv( deRef(preset_dict, (char*)"preset dict") );
 
         size_t preset_len = 0;
         p->preset_dict = (void *)SvPVbyte_force(RETVAL->dict,preset_len);
