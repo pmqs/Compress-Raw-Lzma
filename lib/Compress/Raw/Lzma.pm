@@ -846,12 +846,8 @@ sub Lzma::Filter::Lzma::mk
                             $Nice,
                             $Mf,
                             $got->value('Depth'),
-<<<<<<< HEAD
-                        );
-=======
                             $got->value('PresetDict'),
-                        );    
->>>>>>> 3432a769b283ac5dc9fd757e973cc8aefc1e2345
+                        );
 
     bless $obj, $pkg
         if defined $obj;
