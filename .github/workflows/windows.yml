@@ -37,7 +37,8 @@ jobs:
     - name: Install liblzma
       run: |
         vcpkg install liblzma
-        dir C:/vcpkg/packages/liblzma_x86-windows/share/liblzma
+        dir C:\vcpkg\installed\x86-windows\lib
+        dir C:\vcpkg\installed\x86-windows\include
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
     - name: Build
