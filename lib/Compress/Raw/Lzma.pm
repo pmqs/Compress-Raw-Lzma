@@ -1523,9 +1523,9 @@ Defaults to C<LZMA_DICT_SIZE_DEFAULT>.
 
 =item PresetDict => $dict
 
-Provide an initital dictionary. This value is used to initialize the LZ77 history window.
+Provide an initial dictionary. This value is used to initialize the LZ77 history window.
 
-This feature only works with correctly with raw encoding and decoding.
+This feature only works correctly with raw encoding and decoding.
 You may not be able to decode other formats that have been encoded with a preset dictionary.
 
 C<$dict> should contain typical strings that occur in the files being compressed,
