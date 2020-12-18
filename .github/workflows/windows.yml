@@ -37,11 +37,16 @@ jobs:
     - name: Install liblzma
       run: |
         vcpkg install liblzma
-        vcpkg integrate install
         dir C:/vcpkg/packages/liblzma_x86-windows/share/liblzma
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
     - name: Build
       run: perl Makefile.PL && make
+      env:
+        LIBLZMA_INCLUDE: C:\vcpkg\installed\x86-windows\include
+        LIBLZMA_LIB: C:\vcpkg\installed\x86-windows\lib
     - name: Test
       run: make test
+      env:
+        LIBLZMA_INCLUDE: C:\vcpkg\installed\x86-windows\include
+        LIBLZMA_LIB: C:\vcpkg\installed\x86-windows\lib
