@@ -1,4 +1,3 @@
-
 package Compress::Raw::Lzma;
 
 use strict ;
@@ -789,7 +788,7 @@ sub Lzma::Filter::Lzma::mk
     my $got = Compress::Raw::Lzma::ParseParameters(0,
         {
             'DictSize' => [1, 1, Parse_unsigned(), LZMA_DICT_SIZE_DEFAULT()],
-            #'PreserDict' => [1, 1, Parse_unsigned(), undef],
+            'PresetDict' => [1, 1, Parse_string(), undef],
             'Lc'    => [1, 1, Parse_unsigned(), LZMA_LC_DEFAULT()],
             'Lp'    => [1, 1, Parse_unsigned(), LZMA_LP_DEFAULT()],
             'Pb'    => [1, 1, Parse_unsigned(), LZMA_PB_DEFAULT()],
@@ -847,6 +846,7 @@ sub Lzma::Filter::Lzma::mk
                             $Nice,
                             $Mf,
                             $got->value('Depth'),
+                            $got->value('PresetDict'),
                         );    
 
     bless $obj, $pkg
@@ -881,7 +881,6 @@ sub Lzma::Filter::Lzma1::Preset
 {
     Lzma::Filter::Lzma::mkPreset(0, @_);    
 }
-
 
 @Lzma::Filter::Lzma2::ISA = qw(Lzma::Filter::Lzma);
 sub Lzma::Filter::Lzma2
@@ -1521,6 +1520,18 @@ uncompressed data is kept in memory. The size of the dictionary must be at
 least C<LZMA_DICT_SIZE_MIN>.
 
 Defaults to C<LZMA_DICT_SIZE_DEFAULT>.
+
+=item PresetDict => $dict
+
+Provide an initital dictionary. This value is used to initialize the LZ77 history window.
+
+This feature only works with correctly with raw encoding and decoding.
+You may not be able to decode other formats that have been encoded with a preset dictionary.
+
+C<$dict> should contain typical strings that occur in the files being compressed,
+with the most probably strings near the end fo the preset dictionary.
+
+If C<$dict> is larger than C<DictSize>, only the last C<DictSize> bytes are processed.
 
 =item Lc => $value
 
