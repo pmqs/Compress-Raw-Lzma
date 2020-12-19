@@ -36,7 +36,7 @@ jobs:
     # Install liblzma on windows
     - name: Install liblzma
       run: |
-        vcpkg install liblzma
+        vcpkg install liblzma:x64-windows
         dir C:\vcpkg\installed\x86-windows\lib
         dir C:\vcpkg\installed\x86-windows\include
     - name: Install dependencies
