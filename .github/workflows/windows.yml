@@ -35,10 +35,7 @@ jobs:
       run: perl -V
     # Install liblzma on windows
     - name: Install liblzma
-      run: |
-        vcpkg install liblzma:x64-windows
-        tree D:\a\Compress-Raw-Lzma
-        tree C:\vcpkg\installed
+      run: vcpkg install liblzma:x64-windows
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
     - name: Build
