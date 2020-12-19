@@ -42,10 +42,10 @@ jobs:
     - name: Build
       run: perl Makefile.PL && make
       env:
-        LIBLZMA_INCLUDE: C:\vcpkg\installed\x86-windows\include
-        LIBLZMA_LIB: C:\vcpkg\installed\x86-windows\lib
+        LIBLZMA_INCLUDE: C:\vcpkg\installed\x64-windows\include
+        LIBLZMA_LIB: C:\vcpkg\installed\x64-windows\lib
     - name: Test
       run: make test
       env:
-        LIBLZMA_INCLUDE: C:\vcpkg\installed\x86-windows\include
-        LIBLZMA_LIB: C:\vcpkg\installed\x86-windows\lib
+        LIBLZMA_INCLUDE: C:\vcpkg\installed\x64-windows\include
+        LIBLZMA_LIB: C:\vcpkg\installed\x64-windows\lib
