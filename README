@@ -54,6 +54,26 @@ To install Compress-Raw-Lzma, run the command below:
 TROUBLESHOOTING
 ---------------
 
+Build fails on Debian/Ubuntu
+----------------------------
+
+If you are running a Debian/Ubuntu derivative you need to install the
+liblzma-dev package.
+
+There is a similarly named package called lzma-dev that will not work
+with this code.
+
+You will get this error if you have the wrong (or neither) package installed
+
+    Lzma.xs:18:10: fatal error: lzma.h: No such file or directory
+       18 | #include "lzma.h"
+          |          ^~~~~~~~
+    compilation terminated.
+
+Install liblzma-dev by running
+
+    sudo apt install liblzma-dev
+
 Test harness fails with: Undefined symbol "lzma_properties_size"
 ----------------------------------------------------------------
 
