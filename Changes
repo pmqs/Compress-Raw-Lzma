@@ -3,7 +3,14 @@ CHANGES
 
   2.206 25July 2023
 
-  
+    * 2.206
+      Tue, 25 Jul 2023 16:24:23 +0100
+      e4ceaeac2d96b3c1cf0830549c857a5909778e35
+
+    * Add instructions to deal with build failure on Ubuntu/Debian
+      https://github.com/pmqs/Compress-Raw-Lzma/issues/7
+      Tue, 18 Jul 2023 09:17:53 +0100
+      b2d20bb04a940f29e743b83396253794cde33a2d
 
   2.205 16 July 2023
 
