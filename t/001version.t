@@ -62,7 +62,7 @@ SKIP:
     $expected_version =~ s/^v//i;
 
     $expected_version = '5.4.4'
-        if $expected_version eq 'develop';
+        if $expected_version eq 'master';
 
     # skip "Skipping version tests for 'develop' branch", 7
     #     if ($expected_version eq 'develop') ;
