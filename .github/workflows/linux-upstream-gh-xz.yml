@@ -18,14 +18,14 @@ jobs:
           - '5.38'
         lzma-version:
           - v5.4.4
-          # - v5.4.3
-          # - v5.4.2
-          # - v5.4.1
-          # - v5.4.0
-          # - v5.2.12
-          # - v5.2.11
-          # - v5.2.10
-          # - develop
+          - v5.4.3
+          - v5.4.2
+          - v5.4.1
+          - v5.4.0
+          - v5.2.12
+          - v5.2.11
+          - v5.2.10
+          - develop
 
 
     name: Perl ${{ matrix.perl }} with lzma ${{matrix.lzma-version}}
@@ -43,8 +43,8 @@ jobs:
       # Install Autotools on Linux
     - name: Install autogen Dependencies
       run: |
-              sudo apt-get update
-              sudo apt-get install -y autoconf automake build-essential po4a autopoint gcc-multilib doxygen
+        sudo apt-get update
+        sudo apt-get install -y autoconf automake build-essential po4a autopoint gcc-multilib doxygen
 
     - name: Checkout upstream lzma ${{matrix.lzma-version}}
       uses: actions/checkout@v3
@@ -55,8 +55,6 @@ jobs:
 
     - name: Build lzma ${{matrix.lzma-version}}
       run: |
-        pwd
-        ls
         # Run autogen.sh script if not already run
         if [ ! -f configure ]
         then
