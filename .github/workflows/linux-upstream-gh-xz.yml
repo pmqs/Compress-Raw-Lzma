@@ -51,6 +51,11 @@ jobs:
       run: |
         pwd
         ls
+        # Run autogen.sh script if not already run
+        if [ ! -f configure ]
+        then
+          ./autogen.sh 
+        fi
         ./configure --prefix ${{ env.lzma-install }}
         make
         make check
