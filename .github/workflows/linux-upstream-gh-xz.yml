@@ -49,6 +49,8 @@ jobs:
 
     - name: Build lzma ${{matrix.lzma-version}}
       run: |
+        pwd
+        ls
         ./configure --prefix ${{ env.lzma-install }}
         make
         make check
