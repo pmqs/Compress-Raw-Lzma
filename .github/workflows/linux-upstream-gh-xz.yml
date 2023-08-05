@@ -1,0 +1,75 @@
+name: Linux + upstream github xz
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+  # schedule:
+  #     - cron: '02 02 * * 6'    # Run every Saturday
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        perl:
+          - '5.38'
+        lzma-version:
+          - v5.4.4
+          # - v5.4.3
+          # - v5.4.2
+          # - v5.4.1
+          # - v5.4.0
+          # - v5.2.12
+          # - v5.2.11
+          # - v5.2.10
+          # - develop
+
+
+    name: Perl ${{ matrix.perl }} with lzma ${{matrix.lzma-version}}
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set Env
+      run: |
+        echo "lzma-source=${GITHUB_WORKSPACE}/upstream-lzma-source-${{ matrix.lzma-version }}"  >> $GITHUB_ENV
+        echo "lzma-install=${HOME}/upstream-lzma-install-${{ matrix.lzma-version }}"            >> $GITHUB_ENV
+        echo "LIBLZMA_LIB=${HOME}/upstream-lzma-install-${{ matrix.lzma-version }}/lib"         >> $GITHUB_ENV
+        echo "LIBLZMA_INCLUDE=${HOME}/upstream-lzma-install-${{ matrix.lzma-version }}/include" >> $GITHUB_ENV
+        echo "LZMA_VERSION=${{ matrix.lzma-version }}"                                          >> $GITHUB_ENV
+
+    - name: Checkout upstream lzma ${{matrix.lzma-version}}
+      uses: actions/checkout@v3
+      with:
+        repository: tukaani-project/xz
+        ref: ${{ matrix.lzma-version }}
+        path: ${{ env.lzma-source }}
+
+    - name: Build lzma ${{matrix.lzma-version}}
+      run: |
+        ./configure --prefix ${{ env.lzma-install }}
+        make
+        make check
+        make install
+      working-directory: ${{ env.lzma-source }}
+
+    - name: Setup perl
+      uses: shogo82148/actions-setup-perl@v1
+      with:
+        perl-version: ${{ matrix.perl }}
+
+    - name: Perl version
+      run: perl -V
+
+    #- name: Install dependencies
+    #  run: |
+    #    cpanm --verbose --installdeps --notest .
+
+    - name: Build
+      run: |
+        perl Makefile.PL && make
+
+    - name: Test
+      run: make test
