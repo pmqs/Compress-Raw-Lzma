@@ -34,11 +34,11 @@ jobs:
 
     - name: Set Env
       run: |
-        echo "lzma-source=${GITHUB_WORKSPACE}/upstream-lzma-source"   >> $GITHUB_ENV
-        echo "lzma-install=${HOME}/upstream-lzma-install"             >> $GITHUB_ENV
-        echo "LIBLZMA_LIB=${HOME}/upstream-lzma-install}/lib"         >> $GITHUB_ENV
-        echo "LIBLZMA_INCLUDE=${HOME}/upstream-lzma-install}/include" >> $GITHUB_ENV
-        echo "LZMA_VERSION=${{ matrix.lzma-version }}"                >> $GITHUB_ENV
+        echo "lzma-source=${HOME}/upstream-lzma-source"              >> $GITHUB_ENV
+        echo "lzma-install=${HOME}/upstream-lzma-install"            >> $GITHUB_ENV
+        echo "LIBLZMA_LIB=${HOME}/upstream-lzma-install/lib"         >> $GITHUB_ENV
+        echo "LIBLZMA_INCLUDE=${HOME}/upstream-lzma-install/include" >> $GITHUB_ENV
+        echo "LZMA_VERSION=${{ matrix.lzma-version }}"               >> $GITHUB_ENV
 
       # run: |
         # echo "lzma-source=${GITHUB_WORKSPACE}/upstream-lzma-source-${{ matrix.lzma-version }}"  >> $GITHUB_ENV
@@ -89,12 +89,12 @@ jobs:
     - name: Build lzma ${{matrix.lzma-version}}
       if: steps.cache-lzma.outputs.cache-hit != 'true'
       run: |
-        mkdir ${GITHUB_WORKSPACE}/build-xz
-        cd ${GITHUB_WORKSPACE}/build-xz
+        mkdir ${HOME}/build-xz
+        cd ${HOME}/build-xz
         cmake ${{ env.lzma-source }}/CMakeLists.txt -B . --install-prefix ${{ env.lzma-install }} -DBUILD_SHARED_LIBS=ON
         cmake --build .
         cmake --install .
-        rm -fr ${GITHUB_WORKSPACE}/build-xz
+        rm -fr ${HOME}/build-xz
 
     - name: Setup perl
       uses: shogo82148/actions-setup-perl@v1
