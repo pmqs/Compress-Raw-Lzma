@@ -1,0 +1,116 @@
+name: MacOS + upstream github xz
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+  schedule:
+      - cron: '02 02 2 1-12 *'    # Run monthly
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        perl:
+          - '5.38'
+        lzma-version:
+          - v5.4.4
+          - v5.4.3
+          - v5.4.2
+          - v5.4.1
+          - v5.4.0
+          - v5.2.12
+          - v5.2.11
+          - v5.2.10
+          - master
+
+
+    name: Perl ${{ matrix.perl }} with lzma ${{matrix.lzma-version}}
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set Env
+      run: |
+        echo "lzma-source=${GITHUB_WORKSPACE}/upstream-lzma-source"  >> $GITHUB_ENV
+        echo "lzma-install=${HOME}/upstream-lzma-install"            >> $GITHUB_ENV
+        echo "LIBLZMA_LIB=${HOME}/upstream-lzma-install/lib"         >> $GITHUB_ENV
+        echo "LIBLZMA_INCLUDE=${HOME}/upstream-lzma-install/include" >> $GITHUB_ENV
+        echo "LZMA_VERSION=${{ matrix.lzma-version }}"               >> $GITHUB_ENV
+
+      # run: |
+        # echo "lzma-source=${GITHUB_WORKSPACE}/upstream-lzma-source-${{ matrix.lzma-version }}"  >> $GITHUB_ENV
+        # echo "lzma-install=${HOME}/upstream-lzma-install-${{ matrix.lzma-version }}"            >> $GITHUB_ENV
+        # echo "LIBLZMA_LIB=${HOME}/upstream-lzma-install-${{ matrix.lzma-version }}/lib"         >> $GITHUB_ENV
+        # echo "LIBLZMA_INCLUDE=${HOME}/upstream-lzma-install-${{ matrix.lzma-version }}/include" >> $GITHUB_ENV
+        # echo "LZMA_VERSION=${{ matrix.lzma-version }}"                                          >> $GITHUB_ENV
+
+
+    - name: Cache lzma ${{matrix.lzma-version}}
+      id: cache-lzma
+      uses: actions/cache@v3
+      with:
+        # NOTE: path doesn't expand variables!
+        path: /home/runner/upstream-lzma-install
+        # path: /home/runner/upstream-lzma-install-${{ matrix.lzma-version }}
+        key: ${{ runner.os }}-lzma-${{ matrix.lzma-version }}
+
+    #   # Install Autotools on Linux
+    # - name: Install autogen Dependencies
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y autoconf automake build-essential po4a autopoint gcc-multilib doxygen
+
+    - name: Checkout upstream lzma ${{matrix.lzma-version}}
+      if: steps.cache-lzma.outputs.cache-hit != 'true'
+      uses: actions/checkout@v3
+      with:
+        repository: tukaani-project/xz
+        ref: ${{ matrix.lzma-version }}
+        path: ${{ env.lzma-source }}
+
+    # Configure-based build
+    # - name: Build lzma ${{matrix.lzma-version}}
+    #   run: |
+    #     # Run autogen.sh script if not already run
+    #     if [ ! -f configure ]
+    #     then
+    #       ./autogen.sh
+    #     fi
+    #     ./configure --prefix ${{ env.lzma-install }}
+    #     make
+    #     make check
+    #     make install
+    #   working-directory: ${{ env.lzma-source }}
+
+    # CMake-based build
+    - name: Build lzma ${{matrix.lzma-version}}
+      if: steps.cache-lzma.outputs.cache-hit != 'true'
+      run: |
+        mkdir ${HOME}/build-xz
+        cd ${HOME}/build-xz
+        cmake ${{ env.lzma-source }}/CMakeLists.txt -B . --install-prefix ${{ env.lzma-install }} -DBUILD_SHARED_LIBS=ON
+        cmake --build .
+        cmake --install .
+        rm -fr ${HOME}/build-xz
+
+    - name: Setup perl
+      uses: shogo82148/actions-setup-perl@v1
+      with:
+        perl-version: ${{ matrix.perl }}
+
+    - name: Perl version
+      run: perl -V
+
+    #- name: Install dependencies
+    #  run: |
+    #    cpanm --verbose --installdeps --notest .
+
+    - name: Build
+      run: |
+        perl Makefile.PL && make
+
+    - name: Test
+      run: make test TEST_VERBOSE=1
