@@ -18,14 +18,14 @@ jobs:
           - '5.38'
         lzma-version:
           - v5.4.4
-          # - v5.4.3
-          # - v5.4.2
-          # - v5.4.1
-          # - v5.4.0
-          # - v5.2.12
-          # - v5.2.11
-          # - v5.2.10
-          # - master
+          - v5.4.3
+          - v5.4.2
+          - v5.4.1
+          - v5.4.0
+          - v5.2.12
+          - v5.2.11
+          - v5.2.10
+          - master
 
 
     name: Perl ${{ matrix.perl }} with lzma ${{matrix.lzma-version}}
@@ -53,6 +53,7 @@ jobs:
         ref: ${{ matrix.lzma-version }}
         path: ${{ env.lzma-source }}
 
+    # Configure-based build
     # - name: Build lzma ${{matrix.lzma-version}}
     #   run: |
     #     # Run autogen.sh script if not already run
@@ -66,6 +67,7 @@ jobs:
     #     make install
     #   working-directory: ${{ env.lzma-source }}
 
+    # CMake-based build
     - name: Build lzma ${{matrix.lzma-version}}
       run: |
         mkdir ${GITHUB_WORKSPACE}/build-xz
@@ -74,8 +76,6 @@ jobs:
         cmake --build .
         cmake --install .
         rm -fr ${GITHUB_WORKSPACE}/build-xz
-      # working-directory: ${GITHUB_WORKSPACE}/build-xz
-      # working-directory: ${{ env.lzma-source }}
 
     - name: Setup perl
       uses: shogo82148/actions-setup-perl@v1
