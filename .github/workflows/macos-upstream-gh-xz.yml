@@ -58,7 +58,6 @@ jobs:
 
       # Install Autotools on Mac
     - name: Install Dependencies
-      if: ${{ matrix.os == 'macos-latest'
       run: brew install autoconf automake libtool po4a doxygen
 
     - name: Checkout upstream lzma ${{matrix.lzma-version}}
