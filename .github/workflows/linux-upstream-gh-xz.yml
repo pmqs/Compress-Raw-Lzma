@@ -34,7 +34,7 @@ jobs:
 
     - name: Set Env
       run: |
-        echo "lzma-source=${HOME}/upstream-lzma-source"              >> $GITHUB_ENV
+        echo "lzma-source=${GITHUB_WORKSPACE}/upstream-lzma-source"  >> $GITHUB_ENV
         echo "lzma-install=${HOME}/upstream-lzma-install"            >> $GITHUB_ENV
         echo "LIBLZMA_LIB=${HOME}/upstream-lzma-install/lib"         >> $GITHUB_ENV
         echo "LIBLZMA_INCLUDE=${HOME}/upstream-lzma-install/include" >> $GITHUB_ENV
