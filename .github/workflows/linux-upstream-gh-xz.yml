@@ -70,7 +70,7 @@ jobs:
       run: |
         mkdir build-xz
         cd build-xz
-        cmake ${{ env.lzma-source }}/CMakeLists.txt -B . --install-prefix ${{ env.lzma-install }}
+        cmake ${{ env.lzma-source }}/CMakeLists.txt -B . --install-prefix ${{ env.lzma-install }} -DBUILD_SHARED_LIBS=ON
         cmake --build .
         cmake --install .
       working-directory: ${{ env.lzma-source }}
