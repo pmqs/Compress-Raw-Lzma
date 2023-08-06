@@ -68,12 +68,13 @@ jobs:
 
     - name: Build lzma ${{matrix.lzma-version}}
       run: |
-        mkdir build-xz
-        cd build-xz
+        # mkdir ${GITHUB_WORKSPACE}/build-xz
+        # cd ${GITHUB_WORKSPACE}/build-xz
         cmake ${{ env.lzma-source }}/CMakeLists.txt -B . --install-prefix ${{ env.lzma-install }} -DBUILD_SHARED_LIBS=ON
         cmake --build .
         cmake --install .
-      working-directory: ${{ env.lzma-source }}
+      working-directory: ${GITHUB_WORKSPACE}/build-xz
+      # working-directory: ${{ env.lzma-source }}
 
     - name: Setup perl
       uses: shogo82148/actions-setup-perl@v1
