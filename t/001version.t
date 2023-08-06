@@ -34,6 +34,16 @@ SKIP: {
     my $lzma_h_string  = LZMA_VERSION_STRING ;
     my $liblzma_string = Compress::Raw::Lzma::lzma_version_string;
 
+    diag <<"EOM" ;
+
+Compress::Raw::Lzma::VERSION                $Compress::Raw::Lzma::VERSION
+Compress::Raw::Lzma::lzma_version_number    $liblzma
+Compress::Raw::Lzma::lzma_version_string    $liblzma_string
+LZMA_VERSION                                $lzma_h
+LZMA_VERSION_STRING                         $lzma_h_string
+
+EOM
+
     is($lzma_h_string, $liblzma_string, "LZMA_VERSION_STRING ($lzma_h_string) matches Compress::Raw::Lzma::lzma_version_string");
     is($lzma_h, $liblzma, "LZMA_VERSION ($lzma_h_string) matches Compress::Raw::Lzma::lzma_version")
         or diag <<EOM;
@@ -61,7 +71,7 @@ SKIP:
     # tag prefixes with a "v", so remove
     $expected_version =~ s/^v//i;
 
-    $expected_version = '5.4.4'
+    $expected_version = '5.5.0alpha'
         if $expected_version eq 'master';
 
     # skip "Skipping version tests for 'develop' branch", 7
