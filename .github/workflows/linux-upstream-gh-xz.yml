@@ -73,6 +73,7 @@ jobs:
         cmake ${{ env.lzma-source }}/CMakeLists.txt -B . --install-prefix ${{ env.lzma-install }} -DBUILD_SHARED_LIBS=ON
         cmake --build .
         cmake --install .
+        rm -fr ${GITHUB_WORKSPACE}/build-xz
       # working-directory: ${GITHUB_WORKSPACE}/build-xz
       # working-directory: ${{ env.lzma-source }}
 
