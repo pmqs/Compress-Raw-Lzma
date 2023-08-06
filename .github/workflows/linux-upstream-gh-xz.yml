@@ -41,7 +41,7 @@ jobs:
         echo "LZMA_VERSION=${{ matrix.lzma-version }}"                                          >> $GITHUB_ENV
 
     - name: Cache lzma ${{matrix.lzma-version}}
-      id: cache-lzma-${{matrix.lzma-version}}
+      id: cache-lzma
       uses: actions/cache@v3
       with:
         path: ${HOME}/upstream-lzma-install-${{ matrix.lzma-version }}
