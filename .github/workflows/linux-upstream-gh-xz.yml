@@ -27,8 +27,8 @@ jobs:
           - v5.2.10
           - master
 
-
     name: Perl ${{ matrix.perl }} with lzma ${{matrix.lzma-version}}
+
     steps:
     - uses: actions/checkout@v3
 
@@ -40,28 +40,13 @@ jobs:
         echo "LIBLZMA_INCLUDE=${HOME}/upstream-lzma-install/include" >> $GITHUB_ENV
         echo "LZMA_VERSION=${{ matrix.lzma-version }}"               >> $GITHUB_ENV
 
-      # run: |
-        # echo "lzma-source=${GITHUB_WORKSPACE}/upstream-lzma-source-${{ matrix.lzma-version }}"  >> $GITHUB_ENV
-        # echo "lzma-install=${HOME}/upstream-lzma-install-${{ matrix.lzma-version }}"            >> $GITHUB_ENV
-        # echo "LIBLZMA_LIB=${HOME}/upstream-lzma-install-${{ matrix.lzma-version }}/lib"         >> $GITHUB_ENV
-        # echo "LIBLZMA_INCLUDE=${HOME}/upstream-lzma-install-${{ matrix.lzma-version }}/include" >> $GITHUB_ENV
-        # echo "LZMA_VERSION=${{ matrix.lzma-version }}"                                          >> $GITHUB_ENV
-
-
     - name: Cache lzma ${{matrix.lzma-version}}
       id: cache-lzma
       uses: actions/cache@v3
       with:
         # NOTE: path doesn't expand variables!
         path: /home/runner/upstream-lzma-install
-        # path: /home/runner/upstream-lzma-install-${{ matrix.lzma-version }}
         key: ${{ runner.os }}-lzma-${{ matrix.lzma-version }}
-
-    #   # Install Autotools on Linux
-    # - name: Install autogen Dependencies
-    #   run: |
-    #     sudo apt-get update
-    #     sudo apt-get install -y autoconf automake build-essential po4a autopoint gcc-multilib doxygen
 
     - name: Checkout upstream lzma ${{matrix.lzma-version}}
       if: steps.cache-lzma.outputs.cache-hit != 'true'
@@ -70,6 +55,13 @@ jobs:
         repository: tukaani-project/xz
         ref: ${{ matrix.lzma-version }}
         path: ${{ env.lzma-source }}
+
+
+    #   # Install Autotools on Linux
+    # - name: Install autogen Dependencies
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y autoconf automake build-essential po4a autopoint gcc-multilib doxygen
 
     # Configure-based build
     # - name: Build lzma ${{matrix.lzma-version}}
