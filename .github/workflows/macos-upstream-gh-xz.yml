@@ -1,11 +1,13 @@
 name: MacOS + upstream github xz
 
+# This is not working, so only allow manual run
+# issue with not being able to override the system path location of the lzma library
 on:
   workflow_dispatch:
-  push:
-  pull_request:
-  schedule:
-      - cron: '02 02 2 1-12 *'    # Run monthly
+  # push:
+  # pull_request:
+  # schedule:
+  #     - cron: '02 02 2 1-12 *'    # Run monthly
 
 jobs:
   build:
@@ -48,10 +50,6 @@ jobs:
         path: /home/runner/upstream-lzma-install
         key: ${{ runner.os }}-lzma-${{ matrix.lzma-version }}
 
-      # Install Autotools on Mac
-    - name: Install Dependencies
-      run: brew install autoconf automake libtool po4a doxygen
-
     - name: Checkout upstream lzma ${{matrix.lzma-version}}
       if: steps.cache-lzma.outputs.cache-hit != 'true'
       uses: actions/checkout@v3
@@ -59,6 +57,10 @@ jobs:
         repository: tukaani-project/xz
         ref: ${{ matrix.lzma-version }}
         path: ${{ env.lzma-source }}
+
+    #   # Install Autotools on Mac
+    # - name: Install Dependencies
+    #   run: brew install autoconf automake libtool po4a doxygen
 
     # # Configure-based build
     # - name: Build lzma ${{matrix.lzma-version}}
@@ -81,7 +83,7 @@ jobs:
       run: |
         mkdir ${HOME}/build-xz
         cd ${HOME}/build-xz
-        cmake ${{ env.lzma-source }}/CMakeLists.txt -B . --install-prefix ${{ env.lzma-install }} -DBUILD_SHARED_LIBS=ON -DCMAKE_MACOSX_RPATH=OFF
+        cmake ${{ env.lzma-source }}/CMakeLists.txt -B . --install-prefix ${{ env.lzma-install }} -DBUILD_SHARED_LIBS=ON
         cmake --build .
         cmake --install .
         rm -fr ${HOME}/build-xz
@@ -101,8 +103,6 @@ jobs:
     - name: Build
       run: |
         perl Makefile.PL && make
-      # env:
-      #   DYLD_LIBRARY_PATH: ${{ env.lzma-install }}/lib
 
     - name: display files
       if: steps.cache-lzma.outputs.cache-hit != 'true'
@@ -112,5 +112,3 @@ jobs:
 
     - name: Test
       run: make test
-      # env:
-      #   DYLD_LIBRARY_PATH: ${{ env.lzma-install }}/lib
