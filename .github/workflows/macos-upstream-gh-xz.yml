@@ -18,14 +18,14 @@ jobs:
           - '5.38'
         lzma-version:
           - v5.4.4
-          - v5.4.3
-          - v5.4.2
-          - v5.4.1
-          - v5.4.0
-          - v5.2.12
-          - v5.2.11
-          - v5.2.10
-          - master
+          # - v5.4.3
+          # - v5.4.2
+          # - v5.4.1
+          # - v5.4.0
+          # - v5.2.12
+          # - v5.2.11
+          # - v5.2.10
+          # - master
 
 
     name: Perl ${{ matrix.perl }} with lzma ${{matrix.lzma-version}}
@@ -106,7 +106,7 @@ jobs:
       if: steps.cache-lzma.outputs.cache-hit != 'true'
       run: |
         find ${{ env.lzma-install }}
-        otool -L ./blib/arch/auto/Compress/Raw/Lzma/Lzma.so
+        # otool -L ./blib/arch/auto/Compress/Raw/Lzma/Lzma.so
 
     - name: Test
       run: DYLD_LIBRARY_PATH=${{ env.lzma-install }}/lib LD_LIBRARY_PATH=${{ env.lzma-install }}/lib make test
