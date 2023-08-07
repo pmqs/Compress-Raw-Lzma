@@ -1,6 +1,12 @@
 name: Windows build
 
-on: [push, pull_request, workflow_dispatch]
+# Not working, so disable for now
+on:
+  workflow_dispatch:
+  # push:
+  # pull_request:
+  # schedule:
+  #     - cron: '02 02 2 1-12 *'    # Run monthly
 
 jobs:
   build:
@@ -30,22 +36,28 @@ jobs:
     name: Perl ${{ matrix.perl }}
     steps:
     - uses: actions/checkout@v3
+    
     - name: Setup perl
       uses: shogo82148/actions-setup-perl@v1
       with:
         perl-version: ${{ matrix.perl }}
+
     - name: Perl version
       run: perl -V
     # Install liblzma on windows
+
     - name: Install liblzma
       run: vcpkg install liblzma:x64-windows
+
     - name: Install dependencies
       run: cpanm --quiet --installdeps --notest .
+
     - name: Build
       run: perl Makefile.PL && make
       env:
         LIBLZMA_INCLUDE: C:\vcpkg\installed\x64-windows\include
         LIBLZMA_LIB: C:\vcpkg\installed\x64-windows\lib
+
     - name: Test
       run: make test
       env:
