@@ -60,31 +60,31 @@ jobs:
         ref: ${{ matrix.lzma-version }}
         path: ${{ env.lzma-source }}
 
-    # Configure-based build
-    - name: Build lzma ${{matrix.lzma-version}}
-      if: steps.cache-lzma.outputs.cache-hit != 'true'
-      run: |
-        # Run autogen.sh script if not already run
-        if [ ! -f configure ]
-        then
-          ./autogen.sh
-        fi
-        ./configure --prefix ${{ env.lzma-install }} --libdir ${{ env.lzma-install }}/lib
-        make
-        make check
-        make install
-      working-directory: ${{ env.lzma-source }}
-
-    # # CMake-based build
+    # # Configure-based build
     # - name: Build lzma ${{matrix.lzma-version}}
     #   if: steps.cache-lzma.outputs.cache-hit != 'true'
     #   run: |
-    #     mkdir ${HOME}/build-xz
-    #     cd ${HOME}/build-xz
-    #     cmake ${{ env.lzma-source }}/CMakeLists.txt -B . --install-prefix ${{ env.lzma-install }} -DBUILD_SHARED_LIBS=ON
-    #     cmake --build .
-    #     cmake --install .
-    #     rm -fr ${HOME}/build-xz
+    #     # Run autogen.sh script if not already run
+    #     if [ ! -f configure ]
+    #     then
+    #       ./autogen.sh
+    #     fi
+    #     ./configure --prefix ${{ env.lzma-install }} --libdir ${{ env.lzma-install }}/lib
+    #     make
+    #     make check
+    #     make install
+    #   working-directory: ${{ env.lzma-source }}
+
+    # CMake-based build
+    - name: Build lzma ${{matrix.lzma-version}}
+      if: steps.cache-lzma.outputs.cache-hit != 'true'
+      run: |
+        mkdir ${HOME}/build-xz
+        cd ${HOME}/build-xz
+        cmake ${{ env.lzma-source }}/CMakeLists.txt -B . --install-prefix ${{ env.lzma-install }} -DBUILD_SHARED_LIBS=ON -DCMAKE_MACOSX_RPATH=OFF
+        cmake --build .
+        cmake --install .
+        rm -fr ${HOME}/build-xz
 
     - name: Setup perl
       uses: shogo82148/actions-setup-perl@v1
@@ -101,6 +101,8 @@ jobs:
     - name: Build
       run: |
         perl Makefile.PL && make
+      # env:
+      #   DYLD_LIBRARY_PATH: ${{ env.lzma-install }}/lib
 
     - name: display files
       if: steps.cache-lzma.outputs.cache-hit != 'true'
@@ -109,6 +111,6 @@ jobs:
         # otool -L ./blib/arch/auto/Compress/Raw/Lzma/Lzma.so
 
     - name: Test
-      run: DYLD_LIBRARY_PATH=${{ env.lzma-install }}/lib LD_LIBRARY_PATH=${{ env.lzma-install }}/lib make test
-      env:
-        DYLD_LIBRARY_PATH: ${{ env.lzma-install }}/lib
+      run: make test
+      # env:
+      #   DYLD_LIBRARY_PATH: ${{ env.lzma-install }}/lib
