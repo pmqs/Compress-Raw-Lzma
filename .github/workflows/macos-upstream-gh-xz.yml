@@ -86,11 +86,6 @@ jobs:
     #     cmake --install .
     #     rm -fr ${HOME}/build-xz
 
-    - name: display files
-      if: steps.cache-lzma.outputs.cache-hit != 'true'
-      run: |
-        find ${{ env.lzma-install }}
-
     - name: Setup perl
       uses: shogo82148/actions-setup-perl@v1
       with:
@@ -107,7 +102,13 @@ jobs:
       run: |
         perl Makefile.PL && make
 
+    - name: display files
+      if: steps.cache-lzma.outputs.cache-hit != 'true'
+      run: |
+        find ${{ env.lzma-install }}
+        ldd ./blib/arch/auto/Compress/Raw/Lzma/Lzma.so
+
     - name: Test
-      run: make test
+      run: DYLD_LIBRARY_PATH=${{ env.lzma-install }}/lib LD_LIBRARY_PATH=${{ env.lzma-install }}/lib make test
       env:
         DYLD_LIBRARY_PATH: ${{ env.lzma-install }}/lib
