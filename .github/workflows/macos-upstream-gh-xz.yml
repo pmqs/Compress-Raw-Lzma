@@ -106,7 +106,7 @@ jobs:
       if: steps.cache-lzma.outputs.cache-hit != 'true'
       run: |
         find ${{ env.lzma-install }}
-        ldd ./blib/arch/auto/Compress/Raw/Lzma/Lzma.so
+        otool -L ./blib/arch/auto/Compress/Raw/Lzma/Lzma.so
 
     - name: Test
       run: DYLD_LIBRARY_PATH=${{ env.lzma-install }}/lib LD_LIBRARY_PATH=${{ env.lzma-install }}/lib make test
