@@ -110,4 +110,4 @@ jobs:
     - name: Test
       run: make test
       env:
-        LD_LIBRARY_PATH: ${{ env.lzma-install }}/lib
+        DYLD_LIBRARY_PATH: ${{ env.lzma-install }}/lib
