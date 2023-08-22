@@ -25,6 +25,7 @@ jobs:
           - v5.2.12
           - v5.2.11
           - v5.2.10
+          # - v5.0.7
           - master
 
     env:
@@ -106,6 +107,12 @@ jobs:
         cmake --build .
         cmake --install .
         rm -fr ${HOME}/build-xz
+
+    - name: Show installed lzma files
+      run: |
+        find .
+      shell: bash
+      working-directory: ${{ env.lzma-install }}
 
     - name: Setup perl
       uses: shogo82148/actions-setup-perl@v1

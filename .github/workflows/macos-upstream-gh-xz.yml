@@ -27,6 +27,7 @@ jobs:
           - v5.2.12
           - v5.2.11
           - v5.2.10
+          # - v5.0.7
           - master
 
     env:
@@ -127,12 +128,6 @@ jobs:
     - name: Build
       run: |
         perl Makefile.PL && make
-
-    - name: display files
-      if: steps.cache-lzma.outputs.cache-hit != 'true'
-      run: |
-        find ${{ env.lzma-install }}
-        # otool -L ./blib/arch/auto/Compress/Raw/Lzma/Lzma.so
 
     - name: Test
       run: make test
