@@ -1,13 +1,14 @@
-name: MacOS + upstream github xz
+name: MacOS + upstream GitHub xz
 
 # This is not working, so only allow manual run
 # issue with not being able to override the system path location of the lzma library
+# It always fnind the system version of liblzma for some reason
 on:
   workflow_dispatch:
-  push:
-  pull_request:
-  schedule:
-      - cron: '02 02 2 1-12 *'    # Run monthly
+  # push:
+  # pull_request:
+  # schedule:
+  #     - cron: '02 02 2 1-12 *'    # Run monthly
 
 jobs:
   build:
@@ -110,6 +111,7 @@ jobs:
 
     - name: Show installed lzma files
       run: |
+        pwd
         find .
       working-directory: ${{ env.lzma-install }}
 
