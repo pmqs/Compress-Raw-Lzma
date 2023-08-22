@@ -32,7 +32,7 @@ jobs:
       lzma-install:     ${{ github.workspace }}/upstream-lzma-install
       LIBLZMA_LIB:      ${{ github.workspace }}/upstream-lzma-install/lib
       LIBLZMA_INCLUDE:  ${{ github.workspace }}/upstream-lzma-install/include
-      LIBLZMA_VERSION:  ${{ matrix.lzma-version }}
+      LZMA_VERSION:     ${{ matrix.lzma-version }}
 
     defaults:
       run:

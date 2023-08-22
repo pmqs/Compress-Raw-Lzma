@@ -4,10 +4,10 @@ name: MacOS + upstream github xz
 # issue with not being able to override the system path location of the lzma library
 on:
   workflow_dispatch:
-  # push:
-  # pull_request:
-  # schedule:
-  #     - cron: '02 02 2 1-12 *'    # Run monthly
+  push:
+  pull_request:
+  schedule:
+      - cron: '02 02 2 1-12 *'    # Run monthly
 
 jobs:
   build:
@@ -34,7 +34,7 @@ jobs:
       lzma-install:     ${{ github.workspace }}/upstream-lzma-install
       LIBLZMA_LIB:      ${{ github.workspace }}/upstream-lzma-install/lib
       LIBLZMA_INCLUDE:  ${{ github.workspace }}/upstream-lzma-install/include
-      LIBLZMA_VERSION:  ${{ matrix.lzma-version }}
+      LZMA_VERSION:     ${{ matrix.lzma-version }}
 
     defaults:
       run:
@@ -105,6 +105,12 @@ jobs:
         cmake --build .
         cmake --install .
         rm -fr ${HOME}/build-xz
+
+    - name: Show installed lzma files
+      run: |
+        find .
+      shell: bash
+      working-directory: ${{ env.lzma-install }}
 
     - name: Setup perl
       uses: shogo82148/actions-setup-perl@v1
