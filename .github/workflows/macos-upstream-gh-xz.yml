@@ -66,7 +66,7 @@ jobs:
       uses: actions/cache@v3
       with:
         # NOTE: path doesn't expand variables!
-        path: /home/runner/upstream-lzma-install
+        path: upstream-lzma-install
         key: ${{ runner.os }}-lzma-${{ matrix.lzma-version }}
 
     - name: Checkout upstream lzma ${{matrix.lzma-version}}
@@ -105,12 +105,10 @@ jobs:
         cmake ${{ env.lzma-source }}/CMakeLists.txt -B . --install-prefix ${{ env.lzma-install }} -DBUILD_SHARED_LIBS=ON
         cmake --build .
         cmake --install .
-        rm -fr ${HOME}/build-xz
 
     - name: Show installed lzma files
       run: |
         find .
-      shell: bash
       working-directory: ${{ env.lzma-install }}
 
     - name: Setup perl
