@@ -37,6 +37,8 @@ jobs:
       LIBLZMA_INCLUDE:  ${{ github.workspace }}/upstream-lzma-install/include
       LZMA_VERSION:     ${{ matrix.lzma-version }}
 
+      DYLD_LIBRARY_PATH: ${{ github.workspace }}/upstream-lzma-install/lib
+
     defaults:
       run:
         working-directory: repo
