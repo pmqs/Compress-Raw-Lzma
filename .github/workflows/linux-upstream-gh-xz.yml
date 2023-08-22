@@ -5,7 +5,7 @@ on:
   push:
   pull_request:
   schedule:
-      - cron: '02 02 2 1-12 *'    # Run monthly
+      - cron: '02 02 * * 6'    # Run every Saturday
 
 jobs:
   build:
@@ -27,18 +27,37 @@ jobs:
           - v5.2.10
           - master
 
+    env:
+      lzma-source:      ${{ github.workspace }}/upstream-lzma-source
+      lzma-install:     ${{ github.workspace }}/upstream-lzma-install
+      LIBLZMA_LIB:      ${{ github.workspace }}/upstream-lzma-install/lib
+      LIBLZMA_INCLUDE:  ${{ github.workspace }}/upstream-lzma-install/include
+      LIBLZMA_VERSION:  ${{ matrix.lzma-version }}
+
+    defaults:
+      run:
+        working-directory: repo
+
     name: Perl ${{ matrix.perl }} with lzma ${{matrix.lzma-version}}
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        path: repo
 
-    - name: Set Env
+    - name: Cancel if Scheduled Job and not running the 'master' branch
+      if: github.event_name == 'schedule' &&  matrix.lzma-version != 'master'
       run: |
-        echo "lzma-source=${GITHUB_WORKSPACE}/upstream-lzma-source"  >> $GITHUB_ENV
-        echo "lzma-install=${HOME}/upstream-lzma-install"            >> $GITHUB_ENV
-        echo "LIBLZMA_LIB=${HOME}/upstream-lzma-install/lib"         >> $GITHUB_ENV
-        echo "LIBLZMA_INCLUDE=${HOME}/upstream-lzma-install/include" >> $GITHUB_ENV
-        echo "LZMA_VERSION=${{ matrix.lzma-version }}"               >> $GITHUB_ENV
+        gh run cancel ${{ github.run_id }}
+        gh run watch  ${{ github.run_id }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Make Paths
+      run: |
+        mkdir -p ${{ env.lzma-source }}
+        mkdir -p ${{ env.lzma-install }}
+        mkdir -p ${{ github.workspace }}/repo
 
     - name: Cache lzma ${{matrix.lzma-version}}
       id: cache-lzma
