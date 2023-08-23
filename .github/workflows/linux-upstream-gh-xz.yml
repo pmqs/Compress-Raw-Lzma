@@ -1,4 +1,4 @@
-name: Linux + upstream github xz
+name: Linux + upstream GitHub xz
 
 on:
   workflow_dispatch:

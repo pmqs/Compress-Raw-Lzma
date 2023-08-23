@@ -1,13 +1,13 @@
 [![Linux build](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/linux.yml/badge.svg)](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/linux.yml)
 [![MacOS build](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/macos.yml/badge.svg)](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/macos.yml)
 [![Windows build](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/windows.yml/badge.svg)](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/windows.yml)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/pmqs/Compress-Raw-Lzma?svg=true)](https://ci.appveyor.com/project/pmqs/Compress-Raw-Lzma)
 
 [![Linux + upstream github xz](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/linux-upstream-gh-xz.yml/badge.svg)](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/linux-upstream-gh-xz.yml)
 [![MacOS + upstream GitHub xz](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/macos-upstream-gh-xz.yml/badge.svg)](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/macos-upstream-gh-xz.yml)
-
 # NAME
 
-Compress::Raw::Lzma - Low-Level Interface to lzma compression library
+Compress::Raw::Lzma - Low-Level Perl Interface to lzma compression library
 
 # SYNOPSIS
 
@@ -69,9 +69,9 @@ option when you create the compression/decompression object.
 There are four compression interfaces available in this module.
 
 - Compress::Raw::Lzma::EasyEncoder
-=item Compress::Raw::Lzma::AloneEncoder
-=item Compress::Raw::Lzma::StreamEncoder
-=item Compress::Raw::Lzma::RawEncoder
+- Compress::Raw::Lzma::AloneEncoder
+- Compress::Raw::Lzma::StreamEncoder
+- Compress::Raw::Lzma::RawEncoder
 
 ## ($z, $status) = new Compress::Raw::Lzma::EasyEncoder \[OPTS\];
 
@@ -185,7 +185,7 @@ _undef_ and `$status` will hold the an _lzma_ error code.
 Below is a list of the valid options:
 
 - **Filter => $filter**
-=item **Filter => \[$filter1, $filter2,...\]**
+- **Filter => \[$filter1, $filter2,...\]**
 
     This option is used to change the bahaviour of the StreamEncoder by
     applying between one and `LZMA_FILTERS_MAX` filters to the data stream
@@ -238,7 +238,7 @@ _undef_ and `$status` will hold the an _lzma_ error code.
 Below is a list of the valid options:
 
 - **Filter => $filter**
-=item **Filter => \[$filter1, $filter2,...\]**
+- **Filter => \[$filter1, $filter2,...\]**
 
     This option is used to change the bahaviour of the RawEncoder by
     applying between one and `LZMA_FILTERS_MAX` filters to the data stream
@@ -276,7 +276,7 @@ Below is a list of the valid options:
 
     Defaults to 0.
 
-## $status = $lz->code($input, $output);
+## $status = $lz->code($input, $output)
 
 Reads the contents of `$input`, compresses it and writes the compressed
 data to `$output`.
@@ -303,9 +303,9 @@ TODO
 There are four uncompression interfaces available in this module.
 
 - Compress::Raw::Lzma::AutoDecoder
-=item Compress::Raw::Lzma::AloneDecoder
-=item Compress::Raw::Lzma::StreamDecoder
-=item Compress::Raw::Lzma::RawDecoder
+- Compress::Raw::Lzma::AloneDecoder
+- Compress::Raw::Lzma::StreamDecoder
+- Compress::Raw::Lzma::RawDecoder
 
 ## ($z, $status) = new Compress::Raw::Lzma::AutoDecoder \[OPTS\] ;
 
