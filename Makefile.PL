@@ -27,7 +27,9 @@ WriteMakefile(
 
     DEFINE       => "$WALL " ,
     XS           => { 'Lzma.xs' => 'Lzma.c'},
-    'depend'     => { 'Makefile'   => 'config.in' },
+    'depend'     => { 'Makefile'   => 'config.in',
+                      'manifypods' => 'READMEmd'
+                    },
     'dist'       => { COMPRESS     => 'gzip',
                       TARFLAGS     => '-chvf',
                       SUFFIX       => 'gz',
@@ -74,6 +76,14 @@ WriteMakefile(
             )
         : ()
     ),
+
+    ((ExtUtils::MakeMaker->VERSION() gt '6.55_03')
+        ? ('BUILD_REQUIRES'  => {
+                    "ExtUtils::MakeMaker" => 0,
+                    'Pod::Markdown'       => 0,
+                }
+          )
+        : ()),
 
     ((ExtUtils::MakeMaker->VERSION() gt '6.30') ?
         ('LICENSE'  => 'perl')         : ()),
