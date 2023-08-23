@@ -1,7 +1,7 @@
 [![Linux build](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/linux.yml/badge.svg)](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/linux.yml)
 [![MacOS build](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/macos.yml/badge.svg)](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/macos.yml)
 [![Windows build](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/windows.yml/badge.svg)](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/windows.yml)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/pmqs/Compress-Raw-Lzma?svg=true)](https://ci.appveyor.com/project/pmqs/Compress-Raw-Lzma)
 
 [![Linux + upstream github xz](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/linux-upstream-gh-xz.yml/badge.svg)](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/linux-upstream-gh-xz.yml)
 [![MacOS + upstream GitHub xz](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/macos-upstream-gh-xz.yml/badge.svg)](https://github.com/pmqs/Compress-Raw-Lzma/actions/workflows/macos-upstream-gh-xz.yml)
-
