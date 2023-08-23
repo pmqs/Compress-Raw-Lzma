@@ -120,9 +120,10 @@ jobs:
     - name: Perl version
       run: perl -V
 
-    #- name: Install dependencies
-    #  run: |
-    #    cpanm --verbose --installdeps --notest .
+    - name: Install dependencies
+      # pod::markdown now available in 5.6
+      if: matrix.perl != '5.6'
+      run: cpanm --quiet --installdeps --notest .
 
     - name: Build
       run: |

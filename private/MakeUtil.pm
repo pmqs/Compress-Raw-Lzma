@@ -68,7 +68,8 @@ MyTrebleCheck:
 
 ';
 
-    if (-e '.github')
+    # pod2markdown only supported from Perl 5.8
+    if (-e '.github' && $] >= 5.008)
     {
         $postamble .= <<EOM;
 
@@ -80,6 +81,13 @@ READMEmd: .github/README.md
 	\$(NOECHO) \$(TOUCH) .github/README.md
 	\$(NOECHO) \$(CP_NONEMPTY) .github/badges .github/README.md \$(PERM_RW)
 	\$(NOECHO) pod2markdown $params{VERSION_FROM} >>.github/README.md
+
+EOM
+    }
+    else {
+        $postamble .= <<EOM;
+
+READMEmd:
 
 EOM
     }
