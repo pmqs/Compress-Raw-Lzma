@@ -2,7 +2,7 @@ name: MacOS + upstream GitHub xz
 
 # This is not working, so only allow manual run
 # issue with not being able to override the system path location of the lzma library
-# It always fnind the system version of liblzma for some reason
+# It always finds the system version of liblzma for some reason
 on:
   workflow_dispatch:
   # push:
