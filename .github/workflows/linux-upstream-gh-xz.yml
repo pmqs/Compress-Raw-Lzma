@@ -35,6 +35,13 @@ jobs:
       LIBLZMA_INCLUDE:  ${{ github.workspace }}/upstream-lzma-install/include
       LZMA_VERSION:     ${{ matrix.lzma-version }}
 
+      # Run each step if
+      # 1. Not a scheduled job
+      # 2. Is sheduled AND zlib 'develop'
+      # STEP_ENABLED:     ${{ ( github.event_name != 'schedule' || ( github.event_name == 'schedule' &&  matrix.lzma-version == 'master' ) ) && true || '' }}
+      STEP_ENABLED:     ${{ ( github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' &&  matrix.lzma-version == 'master' ) ) && true || '' }}
+
+
     defaults:
       run:
         working-directory: repo
@@ -42,40 +49,34 @@ jobs:
     name: Perl ${{ matrix.perl }} with lzma ${{matrix.lzma-version}}
 
     steps:
+
     - uses: actions/checkout@v3
       with:
         path: repo
 
-    - name: Cancel if Scheduled Job and not running the 'master' branch
-      if: github.event_name == 'schedule' &&  matrix.lzma-version != 'master'
-      run: |
-        gh run cancel ${{ github.run_id }}
-        gh run watch  ${{ github.run_id }}
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # - name: Cancel if Scheduled Job and not running the 'master' branch
+    #   if: github.event_name == 'schedule' &&  matrix.lzma-version != 'master'
+    #   run: |
+    #     gh run cancel ${{ github.run_id }}
+    #     gh run watch  ${{ github.run_id }}
+    #   env:
+    #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Make Paths
+      if: env.STEP_ENABLED
       run: |
         mkdir -p ${{ env.lzma-source }}
         mkdir -p ${{ env.lzma-install }}
         mkdir -p ${{ github.workspace }}/repo
 
     - name: Cache lzma ${{matrix.lzma-version}}
+      if: env.STEP_ENABLED && matrix.lzma-version != 'master'
       id: cache-lzma
       uses: actions/cache@v3
       with:
         # NOTE: path doesn't expand variables!
         path: upstream-lzma-install
         key: ${{ runner.os }}-lzma-${{ matrix.lzma-version }}
-
-    - name: Checkout upstream lzma ${{matrix.lzma-version}}
-      if: steps.cache-lzma.outputs.cache-hit != 'true'
-      uses: actions/checkout@v3
-      with:
-        repository: tukaani-project/xz
-        ref: ${{ matrix.lzma-version }}
-        path: ${{ env.lzma-source }}
-
 
     #   # Install Autotools on Linux
     # - name: Install autogen Dependencies
@@ -99,7 +100,7 @@ jobs:
 
     # CMake-based build
     - name: Build lzma ${{matrix.lzma-version}}
-      if: steps.cache-lzma.outputs.cache-hit != 'true'
+      if: env.STEP_ENABLED && steps.cache-lzma.outputs.cache-hit != 'true'
       run: |
         mkdir ${HOME}/build-xz
         cd ${HOME}/build-xz
@@ -108,26 +109,31 @@ jobs:
         cmake --install .
 
     - name: Show installed lzma files
+      if: env.STEP_ENABLED
       run: |
         find .
       working-directory: ${{ env.lzma-install }}
 
     - name: Setup perl
+      if: env.STEP_ENABLED
       uses: shogo82148/actions-setup-perl@v1
       with:
         perl-version: ${{ matrix.perl }}
 
     - name: Perl version
+      if: env.STEP_ENABLED
       run: perl -V
 
     - name: Install dependencies
-      # pod::markdown now available in 5.6
-      if: matrix.perl != '5.6'
+      # pod::markdown not available in 5.6
+      if: env.STEP_ENABLED && matrix.perl != '5.6'
       run: cpanm --quiet --installdeps --notest .
 
     - name: Build
+      if: env.STEP_ENABLED
       run: |
         perl Makefile.PL && make
 
     - name: Test
+      if: env.STEP_ENABLED
       run: make test
