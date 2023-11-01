@@ -79,6 +79,7 @@ READMEmd: .github/README.md
 	\@echo Creating .github/README.md from $params{VERSION_FROM}
 	\$(NOECHO) \$(RM_F) .github/README.md
 	\$(NOECHO) \$(TOUCH) .github/README.md
+    \$(CHMOD) \$(PERM_RW) .github/badges
 	\$(NOECHO) \$(CP_NONEMPTY) .github/badges .github/README.md \$(PERM_RW)
 	\$(NOECHO) pod2markdown $params{VERSION_FROM} >>.github/README.md
 
