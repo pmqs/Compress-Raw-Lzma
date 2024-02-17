@@ -44,10 +44,17 @@ sub MY::libscan
 
 sub MY::postamble
 {
-    my %params = %{ $_[0] };
+    my $self = shift ;
+    my %params = @_ ;
 
-    return ''
-        if $ENV{PERL_CORE} ;
+    if ($ENV{PERL_CORE} )
+    {
+        return <<EOM;
+
+READMEmd:
+
+EOM
+    }
 
     my @files = getPerlFiles('MANIFEST');
 
@@ -68,27 +75,16 @@ MyTrebleCheck:
 
 ';
 
-    # pod2markdown only supported from Perl 5.8
-    if (-e '.github' && $] >= 5.008)
+    if (-e '.github' && exists $params{name})
     {
-        $postamble .= <<EOM;
+        my $name = $params{name};
+        $postamble .= <<"EOM";
 
-READMEmd: .github/README.md
+READMEmd: .github/$name.pod
 
-.github/README.md: $params{VERSION_FROM} .github/badges
-	\@echo Creating .github/README.md from $params{VERSION_FROM}
-	\$(NOECHO) \$(RM_F) .github/README.md
-	\$(NOECHO) \$(TOUCH) .github/README.md
-	\$(CHMOD) \$(PERM_RW) .github/badges
-	\$(NOECHO) \$(CP_NONEMPTY) .github/badges .github/README.md \$(PERM_RW)
-	\$(NOECHO) pod2markdown $params{VERSION_FROM} >>.github/README.md
-
-EOM
-    }
-    else {
-        $postamble .= <<EOM;
-
-READMEmd:
+.github/$name.pod: lib/Compress/Raw/$name.pm
+	\@echo Creating .github/$name.pod from $name.pm
+	\$(NOECHO) perl -e 'while(<>){ next if 1 .. /^__END__/; print}' lib/Compress/Raw/$name.pm >.github/Bzip2.pod
 
 EOM
     }
