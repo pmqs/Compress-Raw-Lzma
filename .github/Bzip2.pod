@@ -1,0 +1,749 @@
+
+
+=head1 NAME
+
+Compress::Raw::Lzma - Low-Level Perl Interface to lzma compression library
+
+=head1 SYNOPSIS
+
+    use Compress::Raw::Lzma ;
+
+    # Encoders
+    my ($lz, $status) = new Compress::Raw::Lzma::EasyEncoder [OPTS]
+        or die "Cannot create lzma object: $status\n";
+
+    my ($lz, $status) = new Compress::Raw::Lzma::AloneEncoder [OPTS]
+        or die "Cannot create lzma object: $status\n";
+
+    my ($lz, $status) = new Compress::Raw::Lzma::StreamEncoder [OPTS]
+        or die "Cannot create lzma object: $status\n";
+
+    my ($lz, $status) = new Compress::Raw::Lzma::RawEncoder [OPTS]
+        or die "Cannot create lzma object: $status\n";
+
+    $status = $lz->code($input, $output);
+    $status = $lz->flush($output);
+
+    # Decoders
+    my ($lz, $status) = new Compress::Raw::Lzma::AloneDecoder [OPTS]
+        or die "Cannot create lzma object: $status\n";
+
+    my ($lz, $status) = new Compress::Raw::Lzma::AutoDecoder [OPTS]
+        or die "Cannot create lzma object: $status\n";
+
+    my ($lz, $status) = new Compress::Raw::Lzma::StreamDecoder [OPTS]
+        or die "Cannot create lzma object: $status\n";
+
+    my ($lz, $status) = new Compress::Raw::Lzma::RawDecoder [OPTS]
+        or die "Cannot create lzma object: $status\n";
+
+    $status = $lz->code($input, $output);
+
+    my $version = Compress::Raw::Lzma::lzma_version_number();
+    my $version = Compress::Raw::Lzma::lzma_version_string();
+
+=head1 DESCRIPTION
+
+C<Compress::Raw::Lzma> provides an interface to the in-memory
+compression/uncompression functions from the lzma compression library.
+
+Although the primary purpose for the existence of C<Compress::Raw::Lzma> is
+for use by the  C<IO::Compress::Lzma>, C<IO::Uncompress::UnLzma>,
+C<IO::Compress::Xz> and C<IO::Uncompress::UnXz> modules, it can be used on
+its own for simple compression/uncompression tasks.
+
+There are two functions, called C<code> and C<flush>, used in all the
+compression and uncompression interfaces defined in this module. By default
+both of these functions overwrites any data stored in its output buffer
+parameter. If you want to compress/uncompress to a single buffer, and have
+C<code> and C<flush> append to that buffer, enable the C<AppendOutput>
+option when you create the compression/decompression object.
+
+=head1 Compression
+
+There are four compression interfaces available in this module.
+
+=over 5
+
+=item Compress::Raw::Lzma::EasyEncoder
+
+=item Compress::Raw::Lzma::AloneEncoder
+
+=item Compress::Raw::Lzma::StreamEncoder
+
+=item Compress::Raw::Lzma::RawEncoder
+
+=back
+
+=head2 ($z, $status) = new Compress::Raw::Lzma::EasyEncoder [OPTS];
+
+Creates a new I<xz> compression object.
+
+If successful, it will return the initialised compression object, C<$z>
+and a C<$status> of C<LZMA_OK> in a list context. In scalar context it
+returns the deflation object, C<$z>, only.
+
+If not successful, the returned compression object, C<$z>, will be
+I<undef> and C<$status> will hold the an I<lzma> error code.
+
+Below is a list of the valid options:
+
+=over 5
+
+=item B<< Preset => $preset >>
+
+Used to choose the compression preset.
+
+Valid values are 0-9 and C<LZMA_PRESET_DEFAULT>.
+
+0 is the fastest compression with the lowest memory usage and the lowest
+compression.
+
+9 is the slowest compression with the highest memory usage but with the best
+compression.
+
+Defaults to C<LZMA_PRESET_DEFAULT>.
+
+=item B<< Extreme => 0|1 >>
+
+Makes the compression a lot slower, but a small compression gain.
+
+Defaults to 0.
+
+=item B<< Check => $check >>
+
+Used to specify the integrity check used in the xz data stream.
+Valid values are C<LZMA_CHECK_NONE>, C<LZMA_CHECK_CRC32>,
+C<LZMA_CHECK_CRC64>, C<LZMA_CHECK_SHA256>.
+
+Defaults to C<LZMA_CHECK_CRC32>.
+
+=item B<< AppendOutput => 0|1 >>
+
+Controls whether the compressed data is appended to the output buffer in
+the C<code> and C<flush> methods.
+
+Defaults to 0.
+(Note in versions of this module prior to 2.072 the default value was
+incorrectly documented as 1).
+
+=item B<< BufSize => $number >>
+
+Sets the initial size for the output buffer used by the C<$d-E<gt>code>
+method. If the buffer has to be reallocated to increase the size, it will
+grow in increments of C<Bufsize>.
+
+Defaults to 16k.
+
+=back
+
+=head2 ($z, $status) = new Compress::Raw::Lzma::AloneEncoder [OPTS];
+
+Creates a legacy I<lzma> compression object. This format is also know as
+lzma_alone.
+
+If successful, it will return the initialised compression object, C<$z>
+and a C<$status> of C<LZMA_OK> in a list context. In scalar context it
+returns the deflation object, C<$z>, only.
+
+If not successful, the returned compression object, C<$z>, will be
+I<undef> and C<$status> will hold the an I<lzma> error code.
+
+Below is a list of the valid options:
+
+=over 5
+
+=item B<< Filter => $filter >>
+
+The C< $filter > option must be an object of type C<Lzma::Filter::Lzma1>.
+See L<Compress::Raw::Lzma/Lzma::Filter::Lzma> for a definition
+of C<Lzma::Filter::Lzma1>.
+
+If this option is not present an C<Lzma::Filter::Lzma1> object with default
+values will be used.
+
+=item B<< AppendOutput => 0|1 >>
+
+Controls whether the compressed data is appended to the output buffer in
+the C<code> and C<flush> methods.
+
+Defaults to 0.
+(Note in versions of this module prior to 2.072 the default value was
+incorrectly documented as 1).
+
+=item B<< BufSize => $number >>
+
+Sets the initial size for the output buffer used by the C<$d-E<gt>code>
+method. If the buffer has to be reallocated to increase the size, it will
+grow in increments of C<Bufsize>.
+
+Defaults to 16k.
+
+=back
+
+=head2 ($z, $status) = new Compress::Raw::Lzma::StreamEncoder [OPTS];
+
+Creates a I<xz> compression object.
+
+If successful, it will return the initialised compression object, C<$z>
+and a C<$status> of C<LZMA_OK> in a list context. In scalar context it
+returns the deflation object, C<$z>, only.
+
+If not successful, the returned compression object, C<$z>, will be
+I<undef> and C<$status> will hold the an I<lzma> error code.
+
+Below is a list of the valid options:
+
+=over 5
+
+=item B<< Filter => $filter >>
+
+=item B<< Filter => [$filter1, $filter2,...] >>
+
+This option is used to change the bahaviour of the StreamEncoder by
+applying between one and C<LZMA_FILTERS_MAX> filters to the data stream
+during compression. See L</Filters> for more details on the available
+filters.
+
+If this option is present it must either contain a single
+C<Lzma::Filter::Lzma> filter object or an array reference containing between
+one and C<LZMA_FILTERS_MAX> filter objects.
+
+If this option is not present an C<Lzma::Filter::Lzma2> object with default
+values will be used.
+
+=item B<< Check => $check >>
+
+Used to specify the integrity check used in the xz data stream.
+Valid values are C<LZMA_CHECK_NONE>, C<LZMA_CHECK_CRC32>,
+C<LZMA_CHECK_CRC64>, C<LZMA_CHECK_SHA256>.
+
+Defaults to C<LZMA_CHECK_CRC32>.
+
+=item B<< AppendOutput => 0|1 >>
+
+Controls whether the compressed data is appended to the output buffer in
+the C<code> and C<flush> methods.
+
+Defaults to 0.
+(Note in versions of this module prior to 2.072 the default value was
+incorrectly documented as 1).
+
+=item B<< BufSize => $number >>
+
+Sets the initial size for the output buffer used by the C<$d-E<gt>code>
+method. If the buffer has to be reallocated to increase the size, it will
+grow in increments of C<Bufsize>.
+
+Defaults to 16k.
+
+=back
+
+=head2 ($z, $status) = new Compress::Raw::Lzma::RawEncoder [OPTS];
+
+Low level access to lzma.
+
+If successful, it will return the initialised compression object, C<$z>
+and a C<$status> of C<LZMA_OK> in a list context. In scalar context it
+returns the deflation object, C<$z>, only.
+
+If not successful, the returned compression object, C<$z>, will be
+I<undef> and C<$status> will hold the an I<lzma> error code.
+
+Below is a list of the valid options:
+
+=over 5
+
+=item B<< Filter => $filter >>
+
+=item B<< Filter => [$filter1, $filter2,...] >>
+
+This option is used to change the bahaviour of the RawEncoder by
+applying between one and C<LZMA_FILTERS_MAX> filters to the data stream
+during compression. See L</Filters> for more details on the available
+filters.
+
+If this option is present it must either contain a single
+C<Lzma::Filter::Lzma> filter object or an array reference containing between
+one and C<LZMA_FILTERS_MAX> filter objects.
+
+If this option is not present an C<Lzma::Filter::Lzma2> object with default
+values will be used.
+
+=item B<< AppendOutput => 0|1 >>
+
+Controls whether the compressed data is appended to the output buffer in
+the C<code> and C<flush> methods.
+
+Defaults to 0.
+(Note in versions of this module prior to 2.072 the default value was
+incorrectly documented as 1).
+
+=item B<< BufSize => $number >>
+
+Sets the initial size for the output buffer used by the C<$d-E<gt>code>
+method. If the buffer has to be reallocated to increase the size, it will
+grow in increments of C<Bufsize>.
+
+Defaults to 16k.
+
+=item B<< ForZip => 1/0 >>
+
+This boolean option is used to enable prefixing the compressed data stream
+with an encoded copy of the filter properties.
+
+Defaults to 0.
+
+=back
+
+=head2 $status = $lz->code($input, $output)
+
+Reads the contents of C<$input>, compresses it and writes the compressed
+data to C<$output>.
+
+Returns C<LZMA_OK> on success and an C<lzma> error code on failure.
+
+If C<appendOutput> is enabled in the constructor for the lzma object, the
+compressed data will be appended to C<$output>. If not enabled, C<$output>
+will be truncated before the compressed data is written to it.
+
+=head2 $status = $lz->flush($output, LZMA_FINISH);
+
+Flushes any pending compressed data to C<$output>. By default it terminates
+the compressed data stream.
+
+Returns C<LZMA_OK> on success and an C<lzma> error code on failure.
+
+=head2 Example
+
+TODO
+
+=head1 Uncompression
+
+There are four uncompression interfaces available in this module.
+
+=over 5
+
+=item Compress::Raw::Lzma::AutoDecoder
+
+=item Compress::Raw::Lzma::AloneDecoder
+
+=item Compress::Raw::Lzma::StreamDecoder
+
+=item Compress::Raw::Lzma::RawDecoder
+
+=back
+
+=head2 ($z, $status) = new Compress::Raw::Lzma::AutoDecoder [OPTS] ;
+
+Create an object that can uncompress any of the compressed data streams
+that can be created by this module.
+
+If successful, it will return the initialised uncompression object, C<$z>
+and a C<$status> of C<LZMA_OK> in a list context. In scalar context it
+returns the deflation object, C<$z>, only.
+
+If not successful, the returned uncompression object, C<$z>, will be
+I<undef> and C<$status> will hold the an I<lzma> error code.
+
+Below is a list of the valid options:
+
+=over 5
+
+=item B<-MemLimit>
+
+The number of bytes to use when uncompressing.
+
+Default is unlimited.
+
+=item B<-Bufsize>
+
+Sets the initial size for the output buffer used by the C<$i-E<gt>code>
+method. If the output buffer in this method has to be reallocated to
+increase the size, it will grow in increments of C<Bufsize>.
+
+Default is 16k.
+
+=item B<-AppendOutput>
+
+This option controls how data is written to the output buffer by the
+C<$i-E<gt>code> method.
+
+If the option is set to false, the output buffer in the C<$i-E<gt>code>
+method will be truncated before uncompressed data is written to it.
+
+If the option is set to true, uncompressed data will be appended to the
+output buffer by the C<$i-E<gt>code> method.
+
+This option defaults to false.
+
+=item B<-ConsumeInput>
+
+If set to true, this option will remove compressed data from the input
+buffer of the C<< $i->code >> method as the uncompression progresses.
+
+This option can be useful when you are processing compressed data that is
+embedded in another file/buffer. In this case the data that immediately
+follows the compressed stream will be left in the input buffer.
+
+This option defaults to true.
+
+=item B<-LimitOutput>
+
+The C<LimitOutput> option changes the behavior of the C<< $i->code >>
+method so that the amount of memory used by the output buffer can be
+limited.
+
+When C<LimitOutput> is used the size of the output buffer used will either
+be the value of the C<Bufsize> option or the amount of memory already
+allocated to C<$output>, whichever is larger. Predicting the output size
+available is tricky, so don't rely on getting an exact output buffer size.
+
+When C<LimitOutout> is not specified C<< $i->code >> will use as much
+memory as it takes to write all the uncompressed data it creates by
+uncompressing the input buffer.
+
+If C<LimitOutput> is enabled, the C<ConsumeInput> option will also be
+enabled.
+
+This option defaults to false.
+
+See L</The LimitOutput option> for a discussion on why C<LimitOutput> is
+needed and how to use it.
+
+=back
+
+=head2 ($z, $status) = new Compress::Raw::Lzma::AloneDecoder [OPTS] ;
+
+Create an object that can uncompress an lzma_alone data stream.
+
+If successful, it will return the initialised uncompression object, C<$z>
+and a C<$status> of C<LZMA_OK> in a list context. In scalar context it
+returns the deflation object, C<$z>, only.
+
+If not successful, the returned uncompression object, C<$z>, will be
+I<undef> and C<$status> will hold the an I<lzma> error code.
+
+Below is a list of the valid options:
+
+=over 5
+
+=item B<-MemLimit>
+
+The number of bytes to use when uncompressing.
+
+Default is unlimited.
+
+=item B<-Bufsize>
+
+Sets the initial size for the output buffer used by the C<$i-E<gt>code>
+method. If the output buffer in this method has to be reallocated to
+increase the size, it will grow in increments of C<Bufsize>.
+
+Default is 16k.
+
+=item B<-AppendOutput>
+
+This option controls how data is written to the output buffer by the
+C<$i-E<gt>code> method.
+
+If the option is set to false, the output buffer in the C<$i-E<gt>code>
+method will be truncated before uncompressed data is written to it.
+
+If the option is set to true, uncompressed data will be appended to the
+output buffer by the C<$i-E<gt>code> method.
+
+This option defaults to false.
+
+=item B<-ConsumeInput>
+
+If set to true, this option will remove compressed data from the input
+buffer of the C<< $i->code >> method as the uncompression progresses.
+
+This option can be useful when you are processing compressed data that is
+embedded in another file/buffer. In this case the data that immediately
+follows the compressed stream will be left in the input buffer.
+
+This option defaults to true.
+
+=item B<-LimitOutput>
+
+The C<LimitOutput> option changes the behavior of the C<< $i->code >>
+method so that the amount of memory used by the output buffer can be
+limited.
+
+When C<LimitOutput> is used the size of the output buffer used will either
+be the value of the C<Bufsize> option or the amount of memory already
+allocated to C<$output>, whichever is larger. Predicting the output size
+available is tricky, so don't rely on getting an exact output buffer size.
+
+When C<LimitOutout> is not specified C<< $i->code >> will use as much
+memory as it takes to write all the uncompressed data it creates by
+uncompressing the input buffer.
+
+If C<LimitOutput> is enabled, the C<ConsumeInput> option will also be
+enabled.
+
+This option defaults to false.
+
+See L</The LimitOutput option> for a discussion on why C<LimitOutput> is
+needed and how to use it.
+
+=back
+
+=head2 $status = $z->code($input, $output);
+
+Uncompresses C<$input> and writes the uncompressed data to C<$output>.
+
+Returns C<LZMA_OK> if the uncompression was successful, but the end of the
+compressed data stream has not been reached. Returns C<LZMA_STREAM_END> on
+successful uncompression and the end of the compression stream has been
+reached.
+
+If C<consumeInput> is enabled in the constructor for the lzma object,
+C<$input> will have all compressed data removed from it after
+uncompression. On C<LZMA_OK> return this will mean that C<$input> will be an
+empty string; when C<LZMA_STREAM_END> C<$input> will either be an empty
+string or will contain whatever data immediately followed the compressed
+data stream.
+
+If C<appendOutput> is enabled in the constructor for the lzma object,
+the uncompressed data will be appended to C<$output>. If not enabled,
+C<$output> will be truncated before the uncompressed data is written to it.
+
+=head1 Filters
+
+TODO - more here
+
+A number of the Lzma compression interfaces (namely
+C<Compress::Raw::Lzma::StreamEncoder> &
+C<Compress::Raw::Lzma::AloneEncoder>) and the raw lzma uncompression interface
+make use of filters. These filters are used to change the behaviour of
+compression (and raw uncompression).
+
+All Lzma Filters are sub-classed from the C<Lzma::Filter> base-class.
+
+=head2 Lzma::Filter::Lzma
+
+The C<Lzma::Filter::Lzma> class is used to... TODO - more here
+
+There are two subclasses of C<Lzma::Filter::Lzma>, namely
+C<Lzma::Filter::Lzma1> and C<Lzma::Filter::Lzma2>.
+
+The former is typically used with C<Compress::Raw::Lzma::AloneEncoder>.
+The latter with C<Compress::Raw::Lzma::StreamEncoder>.
+
+When using Lzma filters an C<Lzma::Filter::Lzma> I<must> be included and it
+I<must> be the last filter in the chain. There can only be one
+C<Lzma::Filter::Lzma> filter in any filter chain.
+
+The C<Lzma::Filter::Lzma> construction takes the following options.
+
+=over 5
+
+=item DictSize => $value
+
+Dictionary size in bytes. This controls
+how many bytes of the recently processed
+uncompressed data is kept in memory. The size of the dictionary must be at
+least C<LZMA_DICT_SIZE_MIN>.
+
+Defaults to C<LZMA_DICT_SIZE_DEFAULT>.
+
+=item PresetDict => $dict
+
+Provide an initial dictionary. This value is used to initialize the LZ77 history window.
+
+This feature only works correctly with raw encoding and decoding.
+You may not be able to decode other formats that have been encoded with a preset dictionary.
+
+C<$dict> should contain typical strings that occur in the files being compressed,
+with the most probably strings near the end fo the preset dictionary.
+
+If C<$dict> is larger than C<DictSize>, only the last C<DictSize> bytes are processed.
+
+=item Lc => $value
+
+Number of literal context bits.
+
+How many of the highest bits of the previous uncompressed
+eight-bit byte (also known as `literal') are taken into
+account when predicting the bits of the next literal.
+
+C<$value> must be a number between C<LZMA_LCLP_MIN> and
+C<LZMA_LCLP_MAX>.
+
+Note the sum of the C<Lc> and C<Lp> options cannot exceed 4.
+
+Defaults to C<LZMA_LC_DEFAULT>.
+
+=item Lp => $value
+
+Number of literal position bits.
+
+How many of the lowest bits of the current position (number
+of bytes from the beginning of the uncompressed data) in the
+uncompressed data is taken into account when predicting the
+bits of the next literal (a single eight-bit byte).
+
+Defaults to C<LZMA_LP_DEFAULT>.
+
+=item Pb => $value
+
+Number of position bits
+
+How many of the lowest bits of the current position in the
+uncompressed data is taken into account when estimating
+probabilities of matches. A match is a sequence of bytes for
+which a matching sequence is found from the dictionary and
+thus can be stored as distance-length pair.
+
+C<$value> must be a number between C<LZMA_PB_MIN> and
+C<LZMA_PB_MAX>.
+
+Defaults to C<LZMA_PB_DEFAULT>.
+
+=item Mode => $value
+
+The Compression Mode. Valid values are C<LZMA_MODE_FAST> and
+C<LZMA_MODE_NORMAL>.
+
+Defaults to C<LZMA_MODE_NORMAL>.
+
+=item Nice => $value
+
+Nice length of a match
+
+Defaults to 64.
+
+=item Mf => $value
+
+Defines which Match Finder to use. Valid values are C<LZMA_MF_HC3>
+C<LZMA_MF_HC4>, C<LZMA_MF_BT2> C<LZMA_MF_BT3> and C<LZMA_MF_BT4>.
+
+Defaults to C<LZMA_MF_BT4>.
+
+=item Depth => $value
+
+Maximum search depth in the match finder.
+
+Defaults to 0.
+
+=back
+
+=head2 Lzma::Filter::BCJ
+
+The sub-classes of C<Lzma::Filter::BCJ> are the
+Branch/Call/Jump conversion filters. These filters are used to rewrite
+executable binary code for a number of processor architectures.
+None of these classes take any options.
+
+=over 5
+
+=item Lzma::Filter::X86
+
+Filter for x86 binaries.
+
+=item Lzma::Filter::PowerPC
+
+Filter for Big endian PowerPC binaries.
+
+=item Lzma::Filter::IA64
+
+Filter for IA64 (Itanium) binaries.
+
+=item Lzma::Filter::ARM
+
+Filter for ARM binaries.
+
+=item Lzma::Filter::ARMThumb
+
+Filter for ARMThumb binaries.
+
+=item Lzma::Filter::Sparc
+
+Filter for Sparc binaries.
+
+=back
+
+=head2 Lzma::Filter::Delta
+
+Usage is
+
+    Lzma::Filter::Delta [OPTS]
+
+=over 5
+
+=item Type => $type
+
+Defines the type of Delta calculation. The only available type (and
+therefore the default) is
+C<LZMA_DELTA_TYPE_BYTE>,
+
+=item Distance => $value
+
+Defines the Delta Distance. C<$value> must be a number between
+C<LZMA_DELTA_DIST_MIN> and C<LZMA_DELTA_DIST_MAX>.
+
+Default is C<LZMA_DELTA_DIST_MIN>.
+
+=back
+
+=head1 Misc
+
+=head2 my $version = Compress::Raw::Lzma::lzma_version_number();
+
+Returns the version of the underlying lzma library this module is using at
+run-time as a number.
+
+=head2 my $version = Compress::Raw::Lzma::lzma_version_string();
+
+Returns the version of the underlying lzma library this module is using at
+run-time as a string.
+
+=head2 my $version = Compress::Raw::Lzma::LZMA_VERSION();
+
+Returns the version of the underlying lzma library this module was using at
+compile-time as a number.
+
+=head2 my $version = Compress::Raw::Lzma::LZMA_VERSION_STRING();
+
+Returns the version of the underlying lzma library this module was using at
+compile-time as a string.
+
+=head1 Constants
+
+The following lzma constants are exported by this module
+
+TODO - more here
+
+=head1 SUPPORT
+
+General feedback/questions/bug reports should be sent to
+L<https://github.com/pmqs/Compress-Raw-Lzma/issues> (preferred) or
+L<https://rt.cpan.org/Public/Dist/Display.html?Name=Compress-Raw-Lzma>.
+
+=head1 SEE ALSO
+
+L<Compress::Zlib>, L<IO::Compress::Gzip>, L<IO::Uncompress::Gunzip>, L<IO::Compress::Deflate>, L<IO::Uncompress::Inflate>, L<IO::Compress::RawDeflate>, L<IO::Uncompress::RawInflate>, L<IO::Compress::Bzip2>, L<IO::Uncompress::Bunzip2>, L<IO::Compress::Lzma>, L<IO::Uncompress::UnLzma>, L<IO::Compress::Xz>, L<IO::Uncompress::UnXz>, L<IO::Compress::Lzip>, L<IO::Uncompress::UnLzip>, L<IO::Compress::Lzop>, L<IO::Uncompress::UnLzop>, L<IO::Compress::Lzf>, L<IO::Uncompress::UnLzf>, L<IO::Compress::Zstd>, L<IO::Uncompress::UnZstd>, L<IO::Uncompress::AnyInflate>, L<IO::Uncompress::AnyUncompress>
+
+L<IO::Compress::FAQ|IO::Compress::FAQ>
+
+L<File::GlobMapper|File::GlobMapper>, L<Archive::Zip|Archive::Zip>,
+L<Archive::Tar|Archive::Tar>,
+L<IO::Zlib|IO::Zlib>
+
+=head1 AUTHOR
+
+This module was written by Paul Marquess, C<pmqs@cpan.org>.
+
+=head1 MODIFICATION HISTORY
+
+See the Changes file.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2005-2023 Paul Marquess. All rights reserved.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.

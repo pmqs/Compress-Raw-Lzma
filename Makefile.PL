@@ -27,10 +27,11 @@ WriteMakefile(
 
     DEFINE       => "$WALL " ,
     XS           => { 'Lzma.xs' => 'Lzma.c'},
-    'depend'     => { 'Makefile'   => 'config.in',
-                      'manifypods' => 'READMEmd'
+    depend       => { Makefile   => 'config.in',
+                      manifypods => 'READMEmd'
                     },
-    'dist'       => { COMPRESS     => 'gzip',
+    postamble    => { name => 'Lzma' },
+    dist         => { COMPRESS     => 'gzip',
                       TARFLAGS     => '-chvf',
                       SUFFIX       => 'gz',
                       DIST_DEFAULT => 'MyTrebleCheck tardist',
