@@ -84,7 +84,7 @@ READMEmd: .github/$name.pod
 
 .github/$name.pod: lib/Compress/Raw/$name.pm
 	\@echo Creating .github/$name.pod from $name.pm
-	\$(NOECHO) perl -e 'while(<>){ next if 1 .. /^__END__/; print}' lib/Compress/Raw/$name.pm >.github/Bzip2.pod
+	\$(NOECHO) perl -e 'while(<>){ next if 1 .. /^__END__/; print}' lib/Compress/Raw/$name.pm >.github/$name.pod
 
 EOM
     }
