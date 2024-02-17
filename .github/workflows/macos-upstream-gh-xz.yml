@@ -48,7 +48,7 @@ jobs:
 
     name: Perl ${{ matrix.perl }} with lzma ${{matrix.lzma-version}}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         path: repo
 
@@ -68,7 +68,7 @@ jobs:
 
     - name: Cache lzma ${{matrix.lzma-version}}
       id: cache-lzma
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         # NOTE: path doesn't expand variables!
         path: upstream-lzma-install
@@ -76,7 +76,7 @@ jobs:
 
     - name: Checkout upstream lzma ${{matrix.lzma-version}}
       if: steps.cache-lzma.outputs.cache-hit != 'true'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: tukaani-project/xz
         ref: ${{ matrix.lzma-version }}
