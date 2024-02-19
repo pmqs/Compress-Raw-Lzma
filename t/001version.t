@@ -26,7 +26,7 @@ BEGIN
 # Check lzma_version and LZMA_VERSION are the same.
 
 SKIP: {
-    skip "TEST_SKIP_VERSION_CHECK is set", 1
+    skip "TEST_SKIP_VERSION_CHECK is set", 2
         if $ENV{TEST_SKIP_VERSION_CHECK};
 
     my $lzma_h  = LZMA_VERSION ;
