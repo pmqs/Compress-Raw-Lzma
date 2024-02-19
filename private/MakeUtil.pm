@@ -88,7 +88,15 @@ READMEmd: .github/$name.pod
 
 EOM
     }
+    else
+    {
+        $postamble .= <<"EOM";
 
+READMEmd:
+
+EOM
+    }
+    
     return $postamble;
 }
 
