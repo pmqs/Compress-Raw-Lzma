@@ -83,7 +83,7 @@ jobs:
       # Install gettext
     - name: Install cmake Dependencies
       run: |
-        apt-get gettext
+        sudo apt-get install gettext
 
 
     #   # Install Autotools on Linux
