@@ -80,6 +80,12 @@ jobs:
         ref: ${{ matrix.lzma-version }}
         path: ${{ env.lzma-source }}
 
+      # Install gettext
+    - name: Install cmake Dependencies
+      run: |
+        apt-get gettext
+
+
     #   # Install Autotools on Linux
     # - name: Install autogen Dependencies
     #   run: |
