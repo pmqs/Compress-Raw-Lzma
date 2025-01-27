@@ -43,7 +43,7 @@ jobs:
       run: perl -V
 
     - name: lzma library
-      run: apt install liblzma-dev
+      run: sudo apt install liblzma-dev
 
     - name: Install Perl dependencies
       # pod::markdown now available in 5.6
