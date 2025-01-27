@@ -42,7 +42,10 @@ jobs:
     - name: Perl version
       run: perl -V
 
-    - name: Install dependencies
+    - name: lzma library
+      run: apt install liblzma-dev
+
+    - name: Install Perl dependencies
       # pod::markdown now available in 5.6
       if: matrix.perl != '5.6'
       run: cpanm --quiet --installdeps --notest .
