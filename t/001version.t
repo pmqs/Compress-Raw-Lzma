@@ -71,7 +71,7 @@ SKIP:
     # tag prefixes with a "v", so remove
     $expected_version =~ s/^v//i;
 
-    $expected_version = '5.7.2beta'
+    $expected_version = '5.8.0'
         if $expected_version eq 'master';
 
     # skip "Skipping version tests for 'develop' branch", 7

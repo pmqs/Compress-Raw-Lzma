@@ -20,6 +20,7 @@ jobs:
         perl:
           - '5.40'
         lzma-version:
+          - v5.8.0
           - v5.6.3
           - v5.6.3
           - v5.6.2
