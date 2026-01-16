@@ -1387,9 +1387,6 @@ enabled.
 
 This option defaults to false.
 
-See L</The LimitOutput option> for a discussion on why C<LimitOutput> is
-needed and how to use it.
-
 =back
 
 =head2 ($z, $status) = new Compress::Raw::Lzma::AloneDecoder [OPTS] ;
@@ -1464,9 +1461,6 @@ If C<LimitOutput> is enabled, the C<ConsumeInput> option will also be
 enabled.
 
 This option defaults to false.
-
-See L</The LimitOutput option> for a discussion on why C<LimitOutput> is
-needed and how to use it.
 
 =back
 
