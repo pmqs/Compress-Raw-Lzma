@@ -1686,9 +1686,361 @@ compile-time as a string.
 
 =head1 Constants
 
-The following lzma constants are exported by this module
+The following lzma constants are exported by this module.
 
-TODO - more here
+=head2 Return/Status Codes
+
+=over 5
+
+=item LZMA_OK
+
+Operation completed successfully.
+
+=item LZMA_STREAM_END
+
+End of stream was reached. The complete compressed data has been
+decoded/encoded.
+
+=item LZMA_NO_CHECK
+
+Input stream has no integrity check.
+
+=item LZMA_UNSUPPORTED_CHECK
+
+Cannot calculate the integrity check (not supported by this build).
+
+=item LZMA_GET_CHECK
+
+Integrity check type is now available.
+
+=item LZMA_MEM_ERROR
+
+Cannot allocate memory.
+
+=item LZMA_MEMLIMIT_ERROR
+
+Memory usage limit was reached.
+
+=item LZMA_FORMAT_ERROR
+
+File format not recognized.
+
+=item LZMA_OPTIONS_ERROR
+
+Invalid or unsupported options.
+
+=item LZMA_DATA_ERROR
+
+Data is corrupt.
+
+=item LZMA_BUF_ERROR
+
+No progress is possible (stream is truncated or corrupt).
+
+=item LZMA_PROG_ERROR
+
+Programming error (should never happen in correct usage).
+
+=back
+
+=head2 Flush Modes
+
+=over 5
+
+=item LZMA_RUN
+
+Continue coding. Used for normal operation.
+
+=item LZMA_SYNC_FLUSH
+
+Make all the input available at output. Not commonly used with LZMA.
+
+=item LZMA_FULL_FLUSH
+
+Finish encoding of the current Block. Not commonly used.
+
+=item LZMA_FINISH
+
+Finish the coding operation. All input must have been given to the encoder.
+
+=back
+
+=head2 Integrity Check Types
+
+=over 5
+
+=item LZMA_CHECK_NONE
+
+No Check is calculated.
+
+=item LZMA_CHECK_CRC32
+
+CRC32 using the polynomial from IEEE-802.3.
+
+=item LZMA_CHECK_CRC64
+
+CRC64 using the polynomial from ECMA-182.
+
+=item LZMA_CHECK_SHA256
+
+SHA-256 checksum.
+
+=item LZMA_CHECK_ID_MAX
+
+Maximum valid Check ID.
+
+=item LZMA_CHECK_SIZE_MAX
+
+Maximum size of any Check algorithm.
+
+=back
+
+=head2 Preset and Compression Level
+
+=over 5
+
+=item LZMA_PRESET_DEFAULT
+
+Default compression preset (currently 6).
+
+=item LZMA_PRESET_LEVEL_MASK
+
+Mask for preset level (0-9).
+
+=item LZMA_PRESET_EXTREME
+
+Extreme compression preset flag. Can be combined with preset level
+using bitwise OR (e.g., C<6 | LZMA_PRESET_EXTREME>).
+
+=back
+
+=head2 Stream Flags
+
+=over 5
+
+=item LZMA_TELL_NO_CHECK
+
+Accept streams with no integrity check.
+
+=item LZMA_TELL_UNSUPPORTED_CHECK
+
+Accept streams with unsupported integrity check.
+
+=item LZMA_TELL_ANY_CHECK
+
+Accept any type of integrity check.
+
+=item LZMA_CONCATENATED
+
+Enable support for concatenated streams.
+
+=back
+
+=head2 Match Finder Types
+
+=over 5
+
+=item LZMA_MF_HC3
+
+Hash Chain with 3 byte hashing.
+
+=item LZMA_MF_HC4
+
+Hash Chain with 4 byte hashing.
+
+=item LZMA_MF_BT2
+
+Binary Tree with 2 byte hashing.
+
+=item LZMA_MF_BT3
+
+Binary Tree with 3 byte hashing.
+
+=item LZMA_MF_BT4
+
+Binary Tree with 4 byte hashing (default and recommended).
+
+=back
+
+=head2 Compression Mode
+
+=over 5
+
+=item LZMA_MODE_FAST
+
+Fast compression mode.
+
+=item LZMA_MODE_NORMAL
+
+Normal compression mode (default).
+
+=back
+
+=head2 Dictionary and Parameter Limits
+
+=over 5
+
+=item LZMA_DICT_SIZE_MIN
+
+Minimum dictionary size (4 KiB).
+
+=item LZMA_DICT_SIZE_DEFAULT
+
+Default dictionary size.
+
+=item LZMA_LCLP_MIN
+
+Minimum for lc and lp (0).
+
+=item LZMA_LCLP_MAX
+
+Maximum for lc and lp (4).
+
+=item LZMA_LC_DEFAULT
+
+Default number of literal context bits (3).
+
+=item LZMA_LP_DEFAULT
+
+Default number of literal position bits (0).
+
+=item LZMA_PB_MIN
+
+Minimum number of position bits (0).
+
+=item LZMA_PB_MAX
+
+Maximum number of position bits (4).
+
+=item LZMA_PB_DEFAULT
+
+Default number of position bits (2).
+
+=back
+
+=head2 BCJ (Branch/Call/Jump) Filters
+
+Architecture-specific filters for executable code:
+
+=over 5
+
+=item LZMA_FILTER_X86
+
+Filter for x86 (32-bit and 64-bit) binaries.
+
+=item LZMA_FILTER_POWERPC
+
+Filter for Big endian PowerPC binaries.
+
+=item LZMA_FILTER_IA64
+
+Filter for IA-64 (Itanium) binaries.
+
+=item LZMA_FILTER_ARM
+
+Filter for ARM binaries.
+
+=item LZMA_FILTER_ARMTHUMB
+
+Filter for ARM-Thumb binaries.
+
+=item LZMA_FILTER_SPARC
+
+Filter for SPARC binaries.
+
+=back
+
+=head2 Delta Filter
+
+=over 5
+
+=item LZMA_FILTER_DELTA
+
+Delta filter ID.
+
+=item LZMA_DELTA_TYPE_BYTE
+
+Byte-wise delta calculation.
+
+=item LZMA_DELTA_DIST_MIN
+
+Minimum delta distance (1).
+
+=item LZMA_DELTA_DIST_MAX
+
+Maximum delta distance (256).
+
+=back
+
+=head2 LZMA Filters
+
+=over 5
+
+=item LZMA_FILTER_LZMA2
+
+LZMA2 filter (used in .xz format).
+
+=item LZMA_FILTERS_MAX
+
+Maximum number of filters in a chain (4).
+
+=back
+
+=head2 Stream Header and Block
+
+=over 5
+
+=item LZMA_STREAM_HEADER_SIZE
+
+Size of Stream Header (12 bytes).
+
+=item LZMA_BLOCK_HEADER_SIZE_MIN
+
+Minimum size of Block Header.
+
+=item LZMA_BLOCK_HEADER_SIZE_MAX
+
+Maximum size of Block Header.
+
+=item LZMA_BACKWARD_SIZE_MIN
+
+Minimum Backward Size.
+
+=back
+
+=head2 Version Information
+
+=over 5
+
+=item LZMA_VERSION
+
+Encoded version number of liblzma.
+
+=item LZMA_VERSION_MAJOR
+
+Major version number.
+
+=item LZMA_VERSION_MINOR
+
+Minor version number.
+
+=item LZMA_VERSION_PATCH
+
+Patch version number.
+
+=item LZMA_VERSION_STABILITY
+
+Stability indicator.
+
+=item LZMA_VERSION_STABILITY_STRING
+
+Stability as string (e.g., "alpha", "beta", "stable").
+
+=item LZMA_VERSION_STRING
+
+Full version string.
+
+=back
 
 =head1 SUPPORT
 
