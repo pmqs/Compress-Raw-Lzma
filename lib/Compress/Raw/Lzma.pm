@@ -1486,8 +1486,6 @@ C<$output> will be truncated before the uncompressed data is written to it.
 
 =head1 Filters
 
-TODO - more here
-
 A number of the Lzma compression interfaces (namely
 C<Compress::Raw::Lzma::StreamEncoder> &
 C<Compress::Raw::Lzma::AloneEncoder>) and the raw lzma uncompression interface
@@ -1498,7 +1496,8 @@ All Lzma Filters are sub-classed from the C<Lzma::Filter> base-class.
 
 =head2 Lzma::Filter::Lzma
 
-The C<Lzma::Filter::Lzma> class is used to... TODO - more here
+The C<Lzma::Filter::Lzma> class is the primary compression filter for LZMA
+algorithms. It provides fine-grained control over compression parameters.
 
 There are two subclasses of C<Lzma::Filter::Lzma>, namely
 C<Lzma::Filter::Lzma1> and C<Lzma::Filter::Lzma2>.
