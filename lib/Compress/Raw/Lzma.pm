@@ -1586,6 +1586,82 @@ If C<appendOutput> is enabled in the constructor for the lzma object,
 the uncompressed data will be appended to C<$output>. If not enabled,
 C<$output> will be truncated before the uncompressed data is written to it.
 
+=head1 Uncompression examples
+
+=head2 Simple uncompression with AutoDecoder
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # $compressed contains xz/lzma compressed data
+    my $compressed = ...;
+
+    my ($lz, $status) = Compress::Raw::Lzma::AutoDecoder->new(
+        AppendOutput => 1,
+        ConsumeInput => 1,
+    );
+    die "Cannot create decoder: $status\n" unless $lz;
+
+    my $uncompressed = '';
+    $status = $lz->code($compressed, $uncompressed);
+    die "Decompression failed: $status\n"
+        unless $status == LZMA_STREAM_END;
+
+    print "Uncompressed size: ", length($uncompressed), "\n";
+
+=head2 Streaming uncompression with LimitOutput
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    my ($lz, $status) = Compress::Raw::Lzma::AutoDecoder->new(
+        LimitOutput => 1,
+        ConsumeInput => 1,
+        Bufsize => 4096,
+    );
+    die "Cannot create decoder: $status\n" unless $lz;
+
+    # Process compressed data in chunks
+    my $compressed = ...;  # your compressed data
+    my $uncompressed = '';
+
+    while (length($compressed) > 0) {
+        my $output = '';
+        $status = $lz->code($compressed, $output);
+
+        $uncompressed .= $output;
+
+        last if $status == LZMA_STREAM_END;
+        die "Decompression error: $status\n" unless $status == LZMA_OK;
+    }
+
+    print "Total uncompressed: ", length($uncompressed), " bytes\n";
+
+=head2 Uncompressing specific format with AloneDecoder
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # For legacy .lzma format (lzma_alone)
+    my ($lz, $status) = Compress::Raw::Lzma::AloneDecoder->new(
+        MemLimit => 128 * 1024 * 1024,  # 128 MB limit
+        AppendOutput => 0,
+    );
+    die "Cannot create decoder: $status\n" unless $lz;
+
+    my $compressed = ...;  # .lzma format data
+    my $output = '';
+
+    $status = $lz->code($compressed, $output);
+    die "Decompression failed: $status\n"
+        unless $status == LZMA_STREAM_END;
+
 =head1 Filters
 
 A number of the Lzma compression interfaces (namely
