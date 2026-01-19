@@ -1839,6 +1839,183 @@ Default is C<LZMA_DELTA_DIST_MIN>.
 
 =back
 
+=head1 Filter examples
+
+=head2 Using LZMA2 filter with custom dictionary size
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Create LZMA2 filter with large dictionary for better compression
+    my $filter = Lzma::Filter::Lzma2(
+        DictSize => 16 * 1024 * 1024,  # 16 MB dictionary
+        Lc => 3,
+        Lp => 0,
+        Pb => 2,
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => $filter,
+        Check => LZMA_CHECK_CRC64,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    my $input = "Data to compress...";
+    my $output = '';
+
+    $lz->code($input, $output);
+    $lz->flush($output);
+
+=head2 Using LZMA1 filter for legacy .lzma format
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # LZMA1 is used for the legacy .lzma format
+    my $filter = Lzma::Filter::Lzma1(
+        DictSize => 8 * 1024 * 1024,
+        Mode => LZMA_MODE_NORMAL,
+        Mf => LZMA_MF_BT4,
+        Nice => 273,
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::AloneEncoder->new(
+        Filter => $filter,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+=head2 Using preset-based LZMA2 filter
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Use preset instead of manually configuring parameters
+    # Preset 9 = maximum compression
+    my $filter = Lzma::Filter::Lzma2::Preset(9 | LZMA_PRESET_EXTREME);
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => $filter,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+=head2 Combining Delta filter with LZMA2
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Delta filter is useful for data with small changes between bytes
+    # (e.g., uncompressed images, audio samples)
+    my @filters = (
+        Lzma::Filter::Delta(
+            Type => LZMA_DELTA_TYPE_BYTE,
+            Distance => 1,
+        ),
+        Lzma::Filter::Lzma2(
+            DictSize => 8 * 1024 * 1024,
+        ),
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => \@filters,
+        Check => LZMA_CHECK_CRC32,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    # Compress image or audio data
+    my $raw_data = ...;
+    my $compressed = '';
+
+    $lz->code($raw_data, $compressed);
+    $lz->flush($compressed);
+
+=head2 Using BCJ filter for x86 executable compression
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # BCJ (Branch/Call/Jump) filter optimizes compression of x86 binaries
+    my @filters = (
+        Lzma::Filter::X86(Offset => 0),
+        Lzma::Filter::Lzma2(),
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => \@filters,
+        Check => LZMA_CHECK_SHA256,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    # Read and compress x86 binary
+    open my $fh, '<', 'program.exe' or die $!;
+    binmode $fh;
+    my $binary = do { local $/; <$fh> };
+    close $fh;
+
+    my $compressed = '';
+    $lz->code($binary, $compressed);
+    $lz->flush($compressed);
+
+    print "Original: ", length($binary), " bytes\n";
+    print "Compressed: ", length($compressed), " bytes\n";
+
+=head2 Using ARM filter for ARM binaries
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # For ARM executables
+    my @filters = (
+        Lzma::Filter::ARM(),
+        Lzma::Filter::Lzma2(
+            DictSize => 4 * 1024 * 1024,
+        ),
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => \@filters,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+=head2 Maximum compression with multiple filters
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Combine filters for maximum compression
+    my @filters = (
+        Lzma::Filter::Delta(Distance => 1),
+        Lzma::Filter::Lzma2(
+            DictSize => 64 * 1024 * 1024,  # 64 MB
+            Lc => 4,
+            Lp => 0,
+            Pb => 2,
+            Mode => LZMA_MODE_NORMAL,
+            Nice => 273,
+            Mf => LZMA_MF_BT4,
+            Depth => 1024,
+        ),
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => \@filters,
+        Check => LZMA_CHECK_SHA256,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
 =head1 Misc
 
 =head2 my $version = Compress::Raw::Lzma::lzma_version_number();
