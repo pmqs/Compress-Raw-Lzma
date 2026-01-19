@@ -1293,9 +1293,111 @@ the compressed data stream.
 
 Returns C<LZMA_OK> on success and an C<lzma> error code on failure.
 
-=head2 Example
+=head1 Compression examples
 
-TODO
+=head2 Simple compression with EasyEncoder
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    my ($lz, $status) = Compress::Raw::Lzma::EasyEncoder->new(
+        Preset => 6,
+        Extreme => 0,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    my $input = "This is the data to compress " x 100;
+    my $compressed = '';
+
+    $status = $lz->code($input, $compressed);
+    die "Compression failed: $status\n" unless $status == LZMA_OK;
+
+    $status = $lz->flush($compressed);
+    die "Flush failed: $status\n" unless $status == LZMA_STREAM_END;
+
+    print "Original size: ", length($input), "\n";
+    print "Compressed size: ", length($compressed), "\n";
+
+=head2 Streaming compression with AppendOutput
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    my ($lz, $status) = Compress::Raw::Lzma::EasyEncoder->new(
+        AppendOutput => 1,
+        Preset => LZMA_PRESET_DEFAULT,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    my $compressed = '';
+
+    # Compress data in chunks
+    for my $chunk ("Hello ", "world", "!") {
+        $status = $lz->code($chunk, $compressed);
+        die "Compression failed\n" unless $status == LZMA_OK;
+    }
+
+    # Finish compression
+    $status = $lz->flush($compressed);
+    die "Flush failed\n" unless $status == LZMA_STREAM_END;
+
+    print "Compressed: ", length($compressed), " bytes\n";
+
+=head2 Using custom filters with StreamEncoder
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Create a custom LZMA2 filter
+    my $filter = Lzma::Filter::Lzma2(
+        DictSize => 1024 * 1024 * 8,  # 8MB dictionary
+        Lc => 3,
+        Lp => 0,
+        Pb => 2,
+        Mode => LZMA_MODE_NORMAL,
+        Nice => 128,
+        Mf => LZMA_MF_BT4,
+        Depth => 512,
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => $filter,
+        Check => LZMA_CHECK_SHA256,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    my $input = "Custom filter example data";
+    my $compressed = '';
+
+    $status = $lz->code($input, $compressed);
+    $status = $lz->flush(compressed);
+
+=head2 Using multiple filters (BCJ + LZMA2)
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Combine BCJ filter for x86 binaries with LZMA2 compression
+    my @filters = (
+        Lzma::Filter::X86(),      # BCJ filter for x86 code
+        Lzma::Filter::Lzma2(),    # LZMA2 compression
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => \@filters,
+        Check => LZMA_CHECK_CRC64,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    # ... compress binary data ...
 
 =head1 Uncompression
 
