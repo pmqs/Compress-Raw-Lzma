@@ -206,6 +206,14 @@ sub uncompressWith
 }
 
 {
+    # Delete environment variables used by xz that could impact the running of the test
+    for my $var (qw( XZ_DEFAULTS XZ_OPT ))
+    {
+        delete $ENV{$var};
+    }
+}
+
+{
     title "Test AloneEncoder interop with xz" ;
 
     compressWith('Compress::Raw::Lzma::AloneEncoder', '-F auto');
