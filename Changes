@@ -3,6 +3,11 @@ CHANGES
 
   2.219 24 February 2026
 
+      * Remove unused constants (#17)
+        Tue Feb 24 16:54:14 2026 +0000
+        Changes by @michal-josef-spacek
+        ec9fa928e838d61fec5830fd47323ab108538735
+
       * Update to version 2.219
         Tue Feb 24 12:13:32 2026 +0000
         b518ed8c8c0f3ad7e0af5eb9a85563e8b90432e4
