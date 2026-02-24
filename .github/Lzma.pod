@@ -312,11 +312,113 @@ will be truncated before the compressed data is written to it.
 Flushes any pending compressed data to C<$output>. By default it terminates
 the compressed data stream.
 
-Returns C<LZMA_OK> on success and an C<lzma> error code on failure.
+Returns C<LZMA_STREAM_END> on success and an C<lzma> error code on failure.
 
-=head2 Example
+=head1 Compression examples
 
-TODO
+=head2 Simple compression with EasyEncoder
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    my ($lz, $status) = Compress::Raw::Lzma::EasyEncoder->new(
+        Preset => 6,
+        Extreme => 0,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    my $input = "This is the data to compress " x 100;
+    my $compressed = '';
+
+    $status = $lz->code($input, $compressed);
+    die "Compression failed: $status\n" unless $status == LZMA_OK;
+
+    $status = $lz->flush($compressed);
+    die "Flush failed: $status\n" unless $status == LZMA_STREAM_END;
+
+    print "Original size: ", length($input), "\n";
+    print "Compressed size: ", length($compressed), "\n";
+
+=head2 Streaming compression with AppendOutput
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    my ($lz, $status) = Compress::Raw::Lzma::EasyEncoder->new(
+        AppendOutput => 1,
+        Preset => LZMA_PRESET_DEFAULT,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    my $compressed = '';
+
+    # Compress data in chunks
+    for my $chunk ("Hello ", "world", "!") {
+        $status = $lz->code($chunk, $compressed);
+        die "Compression failed\n" unless $status == LZMA_OK;
+    }
+
+    # Finish compression
+    $status = $lz->flush($compressed);
+    die "Flush failed\n" unless $status == LZMA_STREAM_END;
+
+    print "Compressed: ", length($compressed), " bytes\n";
+
+=head2 Using custom filters with StreamEncoder
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Create a custom LZMA2 filter
+    my $filter = Lzma::Filter::Lzma2(
+        DictSize => 1024 * 1024 * 8,  # 8MB dictionary
+        Lc => 3,
+        Lp => 0,
+        Pb => 2,
+        Mode => LZMA_MODE_NORMAL,
+        Nice => 128,
+        Mf => LZMA_MF_BT4,
+        Depth => 512,
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => $filter,
+        Check => LZMA_CHECK_SHA256,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    my $input = "Custom filter example data";
+    my $compressed = '';
+
+    $status = $lz->code($input, $compressed);
+    $status = $lz->flush(compressed);
+
+=head2 Using multiple filters (BCJ + LZMA2)
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Combine BCJ filter for x86 binaries with LZMA2 compression
+    my @filters = (
+        Lzma::Filter::X86(),      # BCJ filter for x86 code
+        Lzma::Filter::Lzma2(),    # LZMA2 compression
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => \@filters,
+        Check => LZMA_CHECK_CRC64,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    # ... compress binary data ...
 
 =head1 Uncompression
 
@@ -408,9 +510,6 @@ enabled.
 
 This option defaults to false.
 
-See L</The LimitOutput option> for a discussion on why C<LimitOutput> is
-needed and how to use it.
-
 =back
 
 =head2 ($z, $status) = new Compress::Raw::Lzma::AloneDecoder [OPTS] ;
@@ -486,9 +585,6 @@ enabled.
 
 This option defaults to false.
 
-See L</The LimitOutput option> for a discussion on why C<LimitOutput> is
-needed and how to use it.
-
 =back
 
 =head2 $status = $z->code($input, $output);
@@ -511,9 +607,83 @@ If C<appendOutput> is enabled in the constructor for the lzma object,
 the uncompressed data will be appended to C<$output>. If not enabled,
 C<$output> will be truncated before the uncompressed data is written to it.
 
-=head1 Filters
+=head1 Uncompression examples
 
-TODO - more here
+=head2 Simple uncompression with AutoDecoder
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # $compressed contains xz/lzma compressed data
+    my $compressed = ...;
+
+    my ($lz, $status) = Compress::Raw::Lzma::AutoDecoder->new(
+        AppendOutput => 1,
+        ConsumeInput => 1,
+    );
+    die "Cannot create decoder: $status\n" unless $lz;
+
+    my $uncompressed = '';
+    $status = $lz->code($compressed, $uncompressed);
+    die "Decompression failed: $status\n"
+        unless $status == LZMA_STREAM_END;
+
+    print "Uncompressed size: ", length($uncompressed), "\n";
+
+=head2 Streaming uncompression with LimitOutput
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    my ($lz, $status) = Compress::Raw::Lzma::AutoDecoder->new(
+        LimitOutput => 1,
+        ConsumeInput => 1,
+        Bufsize => 4096,
+    );
+    die "Cannot create decoder: $status\n" unless $lz;
+
+    # Process compressed data in chunks
+    my $compressed = ...;  # your compressed data
+    my $uncompressed = '';
+
+    while (length($compressed) > 0) {
+        my $output = '';
+        $status = $lz->code($compressed, $output);
+
+        $uncompressed .= $output;
+
+        last if $status == LZMA_STREAM_END;
+        die "Decompression error: $status\n" unless $status == LZMA_OK;
+    }
+
+    print "Total uncompressed: ", length($uncompressed), " bytes\n";
+
+=head2 Uncompressing specific format with AloneDecoder
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # For legacy .lzma format (lzma_alone)
+    my ($lz, $status) = Compress::Raw::Lzma::AloneDecoder->new(
+        MemLimit => 128 * 1024 * 1024,  # 128 MB limit
+        AppendOutput => 0,
+    );
+    die "Cannot create decoder: $status\n" unless $lz;
+
+    my $compressed = ...;  # .lzma format data
+    my $output = '';
+
+    $status = $lz->code($compressed, $output);
+    die "Decompression failed: $status\n"
+        unless $status == LZMA_STREAM_END;
+
+=head1 Filters
 
 A number of the Lzma compression interfaces (namely
 C<Compress::Raw::Lzma::StreamEncoder> &
@@ -525,7 +695,8 @@ All Lzma Filters are sub-classed from the C<Lzma::Filter> base-class.
 
 =head2 Lzma::Filter::Lzma
 
-The C<Lzma::Filter::Lzma> class is used to... TODO - more here
+The C<Lzma::Filter::Lzma> class is the primary compression filter for LZMA
+algorithms. It provides fine-grained control over compression parameters.
 
 There are two subclasses of C<Lzma::Filter::Lzma>, namely
 C<Lzma::Filter::Lzma1> and C<Lzma::Filter::Lzma2>.
@@ -689,6 +860,183 @@ Default is C<LZMA_DELTA_DIST_MIN>.
 
 =back
 
+=head1 Filter examples
+
+=head2 Using LZMA2 filter with custom dictionary size
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Create LZMA2 filter with large dictionary for better compression
+    my $filter = Lzma::Filter::Lzma2(
+        DictSize => 16 * 1024 * 1024,  # 16 MB dictionary
+        Lc => 3,
+        Lp => 0,
+        Pb => 2,
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => $filter,
+        Check => LZMA_CHECK_CRC64,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    my $input = "Data to compress...";
+    my $output = '';
+
+    $lz->code($input, $output);
+    $lz->flush($output);
+
+=head2 Using LZMA1 filter for legacy .lzma format
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # LZMA1 is used for the legacy .lzma format
+    my $filter = Lzma::Filter::Lzma1(
+        DictSize => 8 * 1024 * 1024,
+        Mode => LZMA_MODE_NORMAL,
+        Mf => LZMA_MF_BT4,
+        Nice => 273,
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::AloneEncoder->new(
+        Filter => $filter,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+=head2 Using preset-based LZMA2 filter
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Use preset instead of manually configuring parameters
+    # Preset 9 = maximum compression
+    my $filter = Lzma::Filter::Lzma2::Preset(9 | LZMA_PRESET_EXTREME);
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => $filter,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+=head2 Combining Delta filter with LZMA2
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Delta filter is useful for data with small changes between bytes
+    # (e.g., uncompressed images, audio samples)
+    my @filters = (
+        Lzma::Filter::Delta(
+            Type => LZMA_DELTA_TYPE_BYTE,
+            Distance => 1,
+        ),
+        Lzma::Filter::Lzma2(
+            DictSize => 8 * 1024 * 1024,
+        ),
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => \@filters,
+        Check => LZMA_CHECK_CRC32,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    # Compress image or audio data
+    my $raw_data = ...;
+    my $compressed = '';
+
+    $lz->code($raw_data, $compressed);
+    $lz->flush($compressed);
+
+=head2 Using BCJ filter for x86 executable compression
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # BCJ (Branch/Call/Jump) filter optimizes compression of x86 binaries
+    my @filters = (
+        Lzma::Filter::X86(Offset => 0),
+        Lzma::Filter::Lzma2(),
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => \@filters,
+        Check => LZMA_CHECK_SHA256,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+    # Read and compress x86 binary
+    open my $fh, '<', 'program.exe' or die $!;
+    binmode $fh;
+    my $binary = do { local $/; <$fh> };
+    close $fh;
+
+    my $compressed = '';
+    $lz->code($binary, $compressed);
+    $lz->flush($compressed);
+
+    print "Original: ", length($binary), " bytes\n";
+    print "Compressed: ", length($compressed), " bytes\n";
+
+=head2 Using ARM filter for ARM binaries
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # For ARM executables
+    my @filters = (
+        Lzma::Filter::ARM(),
+        Lzma::Filter::Lzma2(
+            DictSize => 4 * 1024 * 1024,
+        ),
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => \@filters,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
+=head2 Maximum compression with multiple filters
+
+    use strict;
+    use warnings;
+
+    use Compress::Raw::Lzma;
+
+    # Combine filters for maximum compression
+    my @filters = (
+        Lzma::Filter::Delta(Distance => 1),
+        Lzma::Filter::Lzma2(
+            DictSize => 64 * 1024 * 1024,  # 64 MB
+            Lc => 4,
+            Lp => 0,
+            Pb => 2,
+            Mode => LZMA_MODE_NORMAL,
+            Nice => 273,
+            Mf => LZMA_MF_BT4,
+            Depth => 1024,
+        ),
+    );
+
+    my ($lz, $status) = Compress::Raw::Lzma::StreamEncoder->new(
+        Filter => \@filters,
+        Check => LZMA_CHECK_SHA256,
+    );
+    die "Cannot create encoder: $status\n" unless $lz;
+
 =head1 Misc
 
 =head2 my $version = Compress::Raw::Lzma::lzma_version_number();
@@ -713,9 +1061,361 @@ compile-time as a string.
 
 =head1 Constants
 
-The following lzma constants are exported by this module
+The following lzma constants are exported by this module.
 
-TODO - more here
+=head2 Return/Status Codes
+
+=over 5
+
+=item LZMA_OK
+
+Operation completed successfully.
+
+=item LZMA_STREAM_END
+
+End of stream was reached. The complete compressed data has been
+decoded/encoded.
+
+=item LZMA_NO_CHECK
+
+Input stream has no integrity check.
+
+=item LZMA_UNSUPPORTED_CHECK
+
+Cannot calculate the integrity check (not supported by this build).
+
+=item LZMA_GET_CHECK
+
+Integrity check type is now available.
+
+=item LZMA_MEM_ERROR
+
+Cannot allocate memory.
+
+=item LZMA_MEMLIMIT_ERROR
+
+Memory usage limit was reached.
+
+=item LZMA_FORMAT_ERROR
+
+File format not recognized.
+
+=item LZMA_OPTIONS_ERROR
+
+Invalid or unsupported options.
+
+=item LZMA_DATA_ERROR
+
+Data is corrupt.
+
+=item LZMA_BUF_ERROR
+
+No progress is possible (stream is truncated or corrupt).
+
+=item LZMA_PROG_ERROR
+
+Programming error (should never happen in correct usage).
+
+=back
+
+=head2 Flush Modes
+
+=over 5
+
+=item LZMA_RUN
+
+Continue coding. Used for normal operation.
+
+=item LZMA_SYNC_FLUSH
+
+Make all the input available at output. Not commonly used with LZMA.
+
+=item LZMA_FULL_FLUSH
+
+Finish encoding of the current Block. Not commonly used.
+
+=item LZMA_FINISH
+
+Finish the coding operation. All input must have been given to the encoder.
+
+=back
+
+=head2 Integrity Check Types
+
+=over 5
+
+=item LZMA_CHECK_NONE
+
+No Check is calculated.
+
+=item LZMA_CHECK_CRC32
+
+CRC32 using the polynomial from IEEE-802.3.
+
+=item LZMA_CHECK_CRC64
+
+CRC64 using the polynomial from ECMA-182.
+
+=item LZMA_CHECK_SHA256
+
+SHA-256 checksum.
+
+=item LZMA_CHECK_ID_MAX
+
+Maximum valid Check ID.
+
+=item LZMA_CHECK_SIZE_MAX
+
+Maximum size of any Check algorithm.
+
+=back
+
+=head2 Preset and Compression Level
+
+=over 5
+
+=item LZMA_PRESET_DEFAULT
+
+Default compression preset (currently 6).
+
+=item LZMA_PRESET_LEVEL_MASK
+
+Mask for preset level (0-9).
+
+=item LZMA_PRESET_EXTREME
+
+Extreme compression preset flag. Can be combined with preset level
+using bitwise OR (e.g., C<6 | LZMA_PRESET_EXTREME>).
+
+=back
+
+=head2 Stream Flags
+
+=over 5
+
+=item LZMA_TELL_NO_CHECK
+
+Accept streams with no integrity check.
+
+=item LZMA_TELL_UNSUPPORTED_CHECK
+
+Accept streams with unsupported integrity check.
+
+=item LZMA_TELL_ANY_CHECK
+
+Accept any type of integrity check.
+
+=item LZMA_CONCATENATED
+
+Enable support for concatenated streams.
+
+=back
+
+=head2 Match Finder Types
+
+=over 5
+
+=item LZMA_MF_HC3
+
+Hash Chain with 3 byte hashing.
+
+=item LZMA_MF_HC4
+
+Hash Chain with 4 byte hashing.
+
+=item LZMA_MF_BT2
+
+Binary Tree with 2 byte hashing.
+
+=item LZMA_MF_BT3
+
+Binary Tree with 3 byte hashing.
+
+=item LZMA_MF_BT4
+
+Binary Tree with 4 byte hashing (default and recommended).
+
+=back
+
+=head2 Compression Mode
+
+=over 5
+
+=item LZMA_MODE_FAST
+
+Fast compression mode.
+
+=item LZMA_MODE_NORMAL
+
+Normal compression mode (default).
+
+=back
+
+=head2 Dictionary and Parameter Limits
+
+=over 5
+
+=item LZMA_DICT_SIZE_MIN
+
+Minimum dictionary size (4 KiB).
+
+=item LZMA_DICT_SIZE_DEFAULT
+
+Default dictionary size.
+
+=item LZMA_LCLP_MIN
+
+Minimum for lc and lp (0).
+
+=item LZMA_LCLP_MAX
+
+Maximum for lc and lp (4).
+
+=item LZMA_LC_DEFAULT
+
+Default number of literal context bits (3).
+
+=item LZMA_LP_DEFAULT
+
+Default number of literal position bits (0).
+
+=item LZMA_PB_MIN
+
+Minimum number of position bits (0).
+
+=item LZMA_PB_MAX
+
+Maximum number of position bits (4).
+
+=item LZMA_PB_DEFAULT
+
+Default number of position bits (2).
+
+=back
+
+=head2 BCJ (Branch/Call/Jump) Filters
+
+Architecture-specific filters for executable code:
+
+=over 5
+
+=item LZMA_FILTER_X86
+
+Filter for x86 (32-bit and 64-bit) binaries.
+
+=item LZMA_FILTER_POWERPC
+
+Filter for Big endian PowerPC binaries.
+
+=item LZMA_FILTER_IA64
+
+Filter for IA-64 (Itanium) binaries.
+
+=item LZMA_FILTER_ARM
+
+Filter for ARM binaries.
+
+=item LZMA_FILTER_ARMTHUMB
+
+Filter for ARM-Thumb binaries.
+
+=item LZMA_FILTER_SPARC
+
+Filter for SPARC binaries.
+
+=back
+
+=head2 Delta Filter
+
+=over 5
+
+=item LZMA_FILTER_DELTA
+
+Delta filter ID.
+
+=item LZMA_DELTA_TYPE_BYTE
+
+Byte-wise delta calculation.
+
+=item LZMA_DELTA_DIST_MIN
+
+Minimum delta distance (1).
+
+=item LZMA_DELTA_DIST_MAX
+
+Maximum delta distance (256).
+
+=back
+
+=head2 LZMA Filters
+
+=over 5
+
+=item LZMA_FILTER_LZMA2
+
+LZMA2 filter (used in .xz format).
+
+=item LZMA_FILTERS_MAX
+
+Maximum number of filters in a chain (4).
+
+=back
+
+=head2 Stream Header and Block
+
+=over 5
+
+=item LZMA_STREAM_HEADER_SIZE
+
+Size of Stream Header (12 bytes).
+
+=item LZMA_BLOCK_HEADER_SIZE_MIN
+
+Minimum size of Block Header.
+
+=item LZMA_BLOCK_HEADER_SIZE_MAX
+
+Maximum size of Block Header.
+
+=item LZMA_BACKWARD_SIZE_MIN
+
+Minimum Backward Size.
+
+=back
+
+=head2 Version Information
+
+=over 5
+
+=item LZMA_VERSION
+
+Encoded version number of liblzma.
+
+=item LZMA_VERSION_MAJOR
+
+Major version number.
+
+=item LZMA_VERSION_MINOR
+
+Minor version number.
+
+=item LZMA_VERSION_PATCH
+
+Patch version number.
+
+=item LZMA_VERSION_STABILITY
+
+Stability indicator.
+
+=item LZMA_VERSION_STABILITY_STRING
+
+Stability as string (e.g., "alpha", "beta", "stable").
+
+=item LZMA_VERSION_STRING
+
+Full version string.
+
+=back
 
 =head1 SUPPORT
 
