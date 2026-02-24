@@ -1272,7 +1272,7 @@ will be truncated before the compressed data is written to it.
 Flushes any pending compressed data to C<$output>. By default it terminates
 the compressed data stream.
 
-Returns C<LZMA_OK> on success and an C<lzma> error code on failure.
+Returns C<LZMA_STREAM_END> on success and an C<lzma> error code on failure.
 
 =head1 Compression examples
 
