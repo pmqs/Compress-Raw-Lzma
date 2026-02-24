@@ -201,7 +201,7 @@ static const char my_l_errmsg[][34] = {
 #ifdef NO_WRITEABLE_DATA
 #  define trace TRACE_DEFAULT
 #else
-  static int trace = TRACE_DEFAULT ;
+  PERL_UNUSED_DECL static int trace = TRACE_DEFAULT ;
 #endif
 
 /* Dodge PerlIO hiding of these functions. */
