@@ -969,14 +969,12 @@ code (s, buf, output)
         if (RETVAL != LZMA_OK)
             break;
 
-        /* if (RETVAL == LZMA_BUF_ERROR) { */
-
-            if (s->stream.avail_out == 0)
-                continue ;
-            if (s->stream.avail_in == 0) {
-                RETVAL = LZMA_OK ;
-                break ;
-            }
+        if (s->stream.avail_out == 0)
+            continue ;
+        if (s->stream.avail_in == 0) {
+            RETVAL = LZMA_OK ;
+            break ;
+        }
 
 
         if (RETVAL != LZMA_OK)
