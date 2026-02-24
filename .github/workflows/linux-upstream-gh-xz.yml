@@ -49,7 +49,7 @@ jobs:
 
       # Run each step if
       # 1. Not a scheduled job
-      # 2. Is sheduled AND zlib 'develop'
+      # 2. Is scheduled AND zlib 'develop'
       STEP_ENABLED:     ${{ ( github.event_name != 'schedule' || ( github.event_name == 'schedule' &&  matrix.lzma-version == 'master' ) ) && true || '' }}
 
 
@@ -142,8 +142,6 @@ jobs:
       run: perl -V
 
     - name: Install dependencies
-      # pod::markdown not available in 5.6
-      if: env.STEP_ENABLED && matrix.perl != '5.6'
       run: cpanm --quiet --installdeps --notest .
 
     - name: Build

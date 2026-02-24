@@ -81,7 +81,6 @@ WriteMakefile(
     ((ExtUtils::MakeMaker->VERSION() gt '6.55_03')
         ? ('BUILD_REQUIRES'  => {
                     "ExtUtils::MakeMaker" => 0,
-                    'Pod::Markdown'       => 0,
                 }
           )
         : ()),
