@@ -1,6 +1,17 @@
 CHANGES
 -------
 
+  2.219 24 February 2026
+
+      * Update to version 2.219
+        Tue Feb 24 12:13:32 2026 +0000
+        b518ed8c8c0f3ad7e0af5eb9a85563e8b90432e4
+
+      * Improvements of documentation (#15)
+        Tue Feb 24 12:07:07 2026 +0000
+        Changes by @michal-josef-spacek
+        5407ee30848b8cf11ddcc40e105afc6157c1e2d2
+
   2.217 31 January 2026
 
       * Delete XZ environment variable before running interop tests
