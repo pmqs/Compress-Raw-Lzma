@@ -62,7 +62,7 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         path: repo
 
@@ -84,7 +84,7 @@ jobs:
 
     - name: Checkout upstream lzma ${{matrix.lzma-version}}
       if: env.STEP_ENABLED && steps.cache-lzma.outputs.cache-hit != 'true'
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: tukaani-project/xz
         ref: ${{ matrix.lzma-version }}
