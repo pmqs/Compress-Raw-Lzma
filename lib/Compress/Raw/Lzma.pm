@@ -3,7 +3,7 @@ package Compress::Raw::Lzma;
 use strict ;
 use warnings ;
 
-require 5.006 ;
+require 5.008 ;
 require Exporter;
 use AutoLoader;
 use Carp ;

@@ -23,7 +23,7 @@ installed on your system:
 
     * A C compiler
 
-    * Perl 5.006 or better.
+    * Perl 5.008 or better.
 
     * A copy of liblzma
       liblzma is part of the XZ Utils which is available at

@@ -1,7 +1,7 @@
 #! perl -w
 
 use strict ;
-require 5.006 ;
+require 5.008 ;
 
 use lib '.';
 use private::MakeUtil;
@@ -43,12 +43,8 @@ WriteMakefile(
         : ()
     ),
 
-    (
-      $] >= 5.005
-        ? (ABSTRACT_FROM => 'lib/Compress/Raw/Lzma.pm',
-            AUTHOR       => 'Paul Marquess <pmqs@cpan.org>')
-        : ()
-    ),
+    ABSTRACT_FROM => 'lib/Compress/Raw/Lzma.pm',
+    AUTHOR        => 'Paul Marquess <pmqs@cpan.org>',
 
      ( eval { ExtUtils::MakeMaker->VERSION(6.46) }
         ? ( META_MERGE  => {
