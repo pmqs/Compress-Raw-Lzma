@@ -16,9 +16,6 @@ my $LIBS = '-llzma';
 
 ParseCONFIG() ;
 
-UpDowngrade(getPerlFiles('MANIFEST'))
-    unless $ENV{PERL_CORE};
-
 WriteMakefile(
     NAME         => 'Compress::Raw::Lzma',
     VERSION_FROM => 'lib/Compress/Raw/Lzma.pm',
